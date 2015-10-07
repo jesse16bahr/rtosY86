@@ -9,7 +9,8 @@ TCBptr YKRdyList;		/* a list of TCBs of all ready tasks
 TCBptr YKSuspList;		/* tasks delayed or suspended */
 TCBptr YKAvailTCBList;		/* a list of available TCBs */
 				  /* (extra one is for the idle task) */
-TCB YKTCBArray[MAX_TASKS+1];	/* array to allocate all needed TCBs int YKIdleStk[YKIDLE_STACKSIZE]; //Allocate space for YK idle task
+TCB YKTCBArray[MAX_TASKS+1];	/* array to allocate all needed TCBs
+int YKIdleStk[YKIDLE_STACKSIZE]; //Allocate space for YK idle task
 
 /*
  *

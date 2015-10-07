@@ -25,8 +25,8 @@ TCBptr next;
 
 } TCB;
 
-extern TCB    YKTCBArray[MAX_TASKS+1];	/* array to allocate all needed TCBs
 
+extern TCB all_tcbs[MAX_TASKS_NUM];
 
 
 
