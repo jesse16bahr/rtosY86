@@ -1,21 +1,24 @@
 #####################################################################
-# ECEn 425 Lab 3 Makefile
+# ECEn 425 Lab 4a Makefile
 
-lab3.bin:	lab3final.s
-		nasm lab3final.s -o lab3.bin -l lab3.lst
+lab4b.bin:	lab4bfinal.s
+		nasm lab4bfinal.s -o lab4b.bin -l lab4b.lst
 
-lab3final.s:	clib.s myisr.s myinth.s primes.s
-		cat clib.s myisr.s myinth.s primes.s > lab3final.s
+lab4bfinal.s:	clib.s myisr.s myinth.s yaks.s
+		cat clib.s myisr.s myinth.s yaks.s lab4b_app.s yakc.s > lab4bfinal.s
 
 myinth.s:	myinth.c
 		cpp myinth.c myinth.i
 		c86 -g myinth.i myinth.s
 
-primes.s:	primes.c
-		cpp primes.c primes.i
-		c86 -g primes.i primes.s
+yakc.s:		yakc.c
+		cpp yakc.c yakc.i
+		c86 -g yakc.i yakc.s
+
+lab4b_app.s:	lab4b_app.c
+		cpp lab4b_app.c lab4b_app.i
+		c86 -g lab4b_app.i lab4b_app.s
 
 clean:
-		rm lab3.bin lab3.lst lab3final.s myinth.s myinth.i \
-		primes.s primes.i
+		rm lab4b.bin lab4b.lst lab4bfinal.s myinth.s myinth.i yakc.s yakc.i lab4b_app.s lab4b_app.i
 
