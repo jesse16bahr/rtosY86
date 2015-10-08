@@ -143,13 +143,29 @@ void YKRun()
  */
 void YKScheduler()
 {
-
+	// This pointer will update as we move through the task list.
+	TCBptr check_Ptr = YKRdyList;
+	// Follow the linked list, check task to see if it is ready, if is ready call the Dispatcher
+	// Tasks should be stored in order of priority.
+	while(check_Ptr != NULL)
+	{
+		if(check_Ptr->ready == TRUE)
+		{
+			// This task is the highest ready task, so call scheduler.
+			YKDispatcher(check_Ptr);
+			// Set pointer to null so loop is over.
+		}else
+		{
+			// We have not found an available task yet, so go to next.
+			check_Ptr = check_Ptr->next;
+		}
+	}
 }
 
 /*
  *
  */
-void YKDispatcher()
+void YKDispatcher(TCBptr dispatch_Task)
 {
 
 }

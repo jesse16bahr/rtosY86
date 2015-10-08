@@ -5,6 +5,9 @@
 #include "yaku.h"
 
 #define NULL 0
+#define FALSE 0
+#define TRUE !FALSE
+
 
 typedef struct taskblock *TCBptr;
 typedef struct taskblock
