@@ -131,7 +131,7 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 			else if(tmp_current->next == NULL){
 				tmp_current->next = newTCB;
 				newTCB->prev = tmp_current;
-				newTCP=>next = NULL;
+				newTCB->next = NULL;
 			}
 
 			
@@ -152,7 +152,7 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 void YKRun()
 {
 	// Once initialized we call YKRun, all this does is run the scheduler so that tasks take off!
-	YKScheduler():
+	YKScheduler();
 }
 
 /*
