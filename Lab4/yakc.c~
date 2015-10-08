@@ -123,6 +123,7 @@ void YKScheduler()
 	// This pointer will update as we move through the task list.
 	TCBptr check_Ptr = YKRdyList;
 	// Follow the linked list, check task to see if it is ready, if is ready call the Dispatcher
+	// Tasks should be stored in order of priority.
 	while(check_Ptr != NULL)
 	{
 		if(check_Ptr->ready == TRUE)

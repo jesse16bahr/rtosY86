@@ -131,6 +131,7 @@ void YKScheduler()
 			// This task is the highest ready task, so call scheduler.
 			YKDispatcher(check_Ptr);
 			// Set pointer to null so loop is over.
+			check_Ptr = NULL;
 		}else
 		{
 			// We have not found an available task yet, so go to next.
