@@ -12,9 +12,6 @@
 typedef struct taskblock *TCBptr;
 typedef struct taskblock
 {
-	unsigned short stackBeginAddress; //define a separate task for this task
-	unsigned short stackEndAddress;   //define a separate task for this task
-
 	void* sp; //tasks stack pointer
 	void* bp; //base pointer of tasks stack frame
 	void* pc; // Returns the proper instruction pointer to the code
