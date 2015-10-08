@@ -10,7 +10,7 @@ TCBptr YKAvailTCBList;		/* a list of available TCBs */
 int YKTaskListSize;
 char YKTasksRunning;
 char YKInterruptDepth;
-
+unsigned short YKIdleCount = 0;
 				  /* (extra one is for the idle task) */
 TCB YK_TCB_Array[MAX_TASKS+1];	/* array to allocate all needed TCBs int YKIdleStk[YKIDLE_STACKSIZE]; //Allocate space for YK idle task*/
 
@@ -61,12 +61,21 @@ void YKExitISR()
  */
 void YKIdleTask()
 {
-
+	unsigned char temp;
+	while(TRUE)	
+	{		
+		temp++;
+		temp++;
+		YKIdleCount++;
+	}
 }
 
+void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
+{
+}
 /*
  *
- */
+
 void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 {
 	//Make a temporary TCB pointer
@@ -116,9 +125,6 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 				if(new_TCB->prev == NULL){
 					YKRdyList = newTCB;
 				}
-				if(){
-
-				}
 			}
 
 			tmp_current = tmp_current->next;
@@ -132,7 +138,7 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 	
 	YKTaskListSize++;	
 }
-
+ */
 /*
  *
  */
@@ -157,6 +163,7 @@ void YKScheduler()
 			// This task is the highest ready task, so call scheduler.
 			YKDispatcher(check_Ptr);
 			// Set pointer to null so loop is over.
+			check_Ptr = NULL;
 		}else
 		{
 			// We have not found an available task yet, so go to next.
@@ -178,14 +185,6 @@ void YKDispatcher(TCBptr dispatch_Task)
  *
  */
 void YKCtxSwCount()
-{
-
-}
-
-/*
- *
- */
-void YKIdleCount()
 {
 
 }

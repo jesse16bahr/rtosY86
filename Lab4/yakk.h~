@@ -5,6 +5,9 @@
 #include "yaku.h"
 
 #define NULL 0
+#define FALSE 0
+#define TRUE !FALSE
+
 
 typedef struct taskblock *TCBptr;
 typedef struct taskblock
@@ -24,8 +27,9 @@ typedef struct taskblock
 
 } TCB;
 
-extern TCB  YK_TCB_Array[MAX_TASKS+1];	/* array to allocate all needed TCBs
+extern TCB  YK_TCB_Array[MAX_TASKS+1];	/* array to allocate all needed TCBs */
 
+extern unsigned short YKIdleCount;
 
 /*
  *

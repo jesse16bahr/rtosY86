@@ -27,8 +27,9 @@ typedef struct taskblock
 
 } TCB;
 
-extern TCB  YK_TCB_Array[MAX_TASKS+1];	/* array to allocate all needed TCBs
+extern TCB  YK_TCB_Array[MAX_TASKS+1];	/* array to allocate all needed TCBs */
 
+extern unsigned short YKIdleCount;
 
 /*
  *
@@ -80,6 +81,5 @@ void YKCtxSwCount();
 /*
  *
  */
-void YKIdleCount();
 
 #endif
