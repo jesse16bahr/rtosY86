@@ -7,8 +7,6 @@ Reset:
 	iret			;return from interrupts
 
 
-
-
 Tick:
 	push	bp
 	mov		bp,sp
@@ -20,11 +18,13 @@ Tick:
 	push 	di
 	push 	ds
 	push 	es
+	call	YKEnterISR
 	sti
 	call tickHandler 
 	cli
 	mov		al, 0x20	; Load nonspecific EOI value (0x20) into register al
 	out		0x20, al	; Write EOI to PIC (port 0x20)
+	call    YKExitISR
 	pop 	es
 	pop 	ds
 	pop 	di
@@ -48,11 +48,13 @@ Keyboard:
 	push 	di
 	push 	ds
 	push 	es
+	call	YKEnterISR
 	sti
 	call keyboardHandler
 	cli
 	mov		al, 0x20	; Load nonspecific EOI value (0x20) into register al
 	out		0x20, al	; Write EOI to PIC (port 0x20)
+	call    YKExitISR
 	pop 	es
 	pop 	ds
 	pop 	di
