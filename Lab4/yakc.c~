@@ -132,7 +132,11 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 			}
 			else if(tmp_current->next == NULL){
 				tmp_current->next = newTCB;
-				newTCB->prev = NULL;
+<<<<<<< HEAD
+=======
+				newTCB->prev = tmp_current;
+>>>>>>> d874ea3ccba43b692bbc9caea64b23e651d01e3a
+				newTCB->next = NULL;
 			}
 	
 		} while(tmp_next != NULL);
@@ -154,7 +158,11 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
  */
 void YKRun()
 {
+<<<<<<< HEAD
 	YKTasksRunning = TRUE;
+=======
+	// Once initialized we call YKRun, all this does is run the scheduler so that tasks take off!
+>>>>>>> d874ea3ccba43b692bbc9caea64b23e651d01e3a
 	YKScheduler();
 }
 
@@ -185,3 +193,14 @@ void YKScheduler()
 		}
 	}
 }
+<<<<<<< HEAD
+=======
+
+/*
+ *
+ */
+void YKDispatcher(TCBptr dispatch_Task)
+{
+
+}
+>>>>>>> d874ea3ccba43b692bbc9caea64b23e651d01e3a

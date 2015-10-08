@@ -12,9 +12,10 @@
 typedef struct taskblock *TCBptr;
 typedef struct taskblock
 {
+	void* pc; // Returns the proper instruction pointer to the code
 	void* sp; //tasks stack pointer
 	void* bp; //base pointer of tasks stack frame
-	void* pc; // Returns the proper instruction pointer to the code
+	
 
 	unsigned short priority;	 //Lower numbers have higher priority
 	unsigned short delay;        //Help us know if task is delayed
@@ -27,10 +28,16 @@ typedef struct taskblock
 
 } TCB;
 
+<<<<<<< HEAD
 
 extern TCB  YK_TCB_Array[MAX_TASKS+1];	/* array to allocate all needed TCBs*/
 extern unsigned short YKCtxSwCount;
 
+=======
+extern TCB  YK_TCB_Array[MAX_TASKS+1];	/* array to allocate all needed TCBs*/
+extern unsigned short YKCtxSwCount;
+extern unsigned short YKIdleCount;
+>>>>>>> d874ea3ccba43b692bbc9caea64b23e651d01e3a
 
 /*
  *
@@ -74,6 +81,9 @@ void YKScheduler();
  *
  */
 void YKDispatcher();
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> d874ea3ccba43b692bbc9caea64b23e651d01e3a
 #endif

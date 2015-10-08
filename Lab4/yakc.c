@@ -132,6 +132,7 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 			}
 			else if(tmp_current->next == NULL){
 				tmp_current->next = newTCB;
+				newTCB->prev = tmp_current;
 				newTCB->next = NULL;
 			}
 	
