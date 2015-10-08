@@ -33,7 +33,7 @@ Tick:
 	pop 	cx
 	pop 	bx
 	pop 	ax
-	mov		sp, bp
+	;mov		sp, bp
 	pop 	bp
 	iret
 
@@ -63,7 +63,7 @@ Keyboard:
 	pop 	cx
 	pop 	bx
 	pop 	ax
-	mov		sp, bp
+	;mov		sp, bp
 	pop 	bp
 	iret
 	
