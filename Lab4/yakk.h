@@ -27,8 +27,8 @@ typedef struct taskblock
 
 } TCB;
 
-extern TCB  YK_TCB_Array[MAX_TASKS+1];	/* array to allocate all needed TCBs
-
+extern TCB  YK_TCB_Array[MAX_TASKS+1];	/* array to allocate all needed TCBs*/
+extern unsigned short YKCtxSwCount;
 
 /*
  *
@@ -36,12 +36,13 @@ extern TCB  YK_TCB_Array[MAX_TASKS+1];	/* array to allocate all needed TCBs
 void YKInitialize();
 
 /*
- *
+ * Function Prototype for assembly function that turns off interrupts
+ * Found in yaks.s
  */
 void YKEnterMutex();
 
 /*
- * Function Prototype for assembly function that turns off interrupts
+ * Function prototype for assembly function that turns on interrupts
  * Found in yaks.s
  */
 void YKExitMutex();
@@ -72,14 +73,5 @@ void YKScheduler();
  */
 void YKDispatcher();
 
-/*
- *
- */
-void YKCtxSwCount();
-
-/*
- *
- */
-void YKIdleCount();
 
 #endif

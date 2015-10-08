@@ -7,7 +7,8 @@ TCBptr YKRdyList;		/* a list of TCBs of all ready tasks
 				   in order of decreasing priority */ 
 TCBptr YKSuspList;		/* tasks delayed or suspended */
 TCBptr YKAvailTCBList;		/* a list of available TCBs */
-int YKTaskListSize;
+unsigned short YKTaskListSize;
+unsigned short YKCtxSwCount;
 char YKTasksRunning;
 char YKInterruptDepth;
 
@@ -73,7 +74,7 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 	TCBptr newTCB;
 	TCBptr tmp_next;
 	TCBptr tmp_prev;
-
+	TCBptr tmp_current;
 	//Check to see if we are creating the first TCB
 	if(YKTaskListSize == 0)
 	{
@@ -108,20 +109,24 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 		//Go through the loop until we reach the end
 		do 
 		{
-			if(tmp_current->priority > newTCB->priority)
+			if(newTCB->priority < tmp_current->priority)
 			{
-				new_TCB->next = tmp_current;
-				new_TCB->prev = tmp_current->prev;
-				tmp_current->prev = new_TCB->prev;
-				if(new_TCB->prev == NULL){
+				newTCB->next = tmp_current;
+				newTCB->prev = tmp_current->prev;
+				tmp_current->prev = newTCB;
+				if(newTCB->prev == NULL){
 					YKRdyList = newTCB;
 				}
-				if(){
 
-				}
+				tmp_current = NULL;
+			}
+			else if(tmp_current->next == NULL){
+				tmp_current->next = newTCB;
+				newTCB->prev =
 			}
 
-			tmp_current = tmp_current->next;
+			tmp_next = tmp_current->next;
+			tmp_current  = tmp_current->next;
 		} while(tmp_next != NULL);
 	}
 	else
@@ -149,6 +154,7 @@ void YKScheduler()
 	// This pointer will update as we move through the task list.
 	TCBptr check_Ptr = YKRdyList;
 	// Follow the linked list, check task to see if it is ready, if is ready call the Dispatcher
+	// Tasks should be stored in order of priority.
 	while(check_Ptr != NULL)
 	{
 		if(check_Ptr->ready == TRUE)
@@ -168,23 +174,6 @@ void YKScheduler()
  *
  */
 void YKDispatcher(TCBptr dispatch_Task)
-{
-
-}
-
-
-/*
- *
- */
-void YKCtxSwCount()
-{
-
-}
-
-/*
- *
- */
-void YKIdleCount()
 {
 
 }
