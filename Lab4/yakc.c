@@ -151,7 +151,8 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
  */
 void YKRun()
 {
-
+	// Once initialized we call YKRun, all this does is run the scheduler so that tasks take off!
+	YKScheduler():
 }
 
 /*
