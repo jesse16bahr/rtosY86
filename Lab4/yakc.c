@@ -130,7 +130,8 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 			}
 			else if(tmp_current->next == NULL){
 				tmp_current->next = newTCB;
-				newTCB->prev =
+				newTCB->prev = tmp_current;
+				newTCP=>next = NULL;
 			}
 
 			
@@ -185,15 +186,3 @@ void YKDispatcher(TCBptr dispatch_Task)
 {
 
 }
-<<<<<<< HEAD
-=======
-
-
-/*
- *
- */
-void YKCtxSwCount()
-{
-
-}
->>>>>>> c68e4704baa6dba5e2bf124d22b3d218bdf6fd04

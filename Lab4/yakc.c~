@@ -71,11 +71,9 @@ void YKIdleTask()
 	}
 }
 
-void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
-{
-}
 /*
  *
+ */
 
 void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 {
@@ -146,7 +144,7 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 	
 	YKTaskListSize++;	
 }
- */
+
 /*
  *
  */
