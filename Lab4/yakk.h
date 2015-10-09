@@ -20,8 +20,9 @@ typedef struct taskblock
 	unsigned short priority;	 //Lower numbers have higher priority
 	unsigned short delay;        //Help us know if task is delayed
 
-	unsigned char blocked;   //To help us know if the task is is blocked
-	unsigned char ready;      //To help us know if task is ready to run
+	unsigned short blocked;   //To help us know if the task is is blocked
+	unsigned short ready;      //To help us know if task is ready to run
+	unsigned short hasRun;
 
 	TCBptr prev;
 	TCBptr next;
