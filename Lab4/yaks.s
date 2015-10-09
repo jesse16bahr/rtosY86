@@ -30,7 +30,7 @@ YKDispatcher:
 	push 	di
 	push 	ds
 	push 	es
-	mov		[YKCurrentTsk+2], sp
+	mov		[YKCurrentTask+2], sp
 	
 	
 Restore:	
