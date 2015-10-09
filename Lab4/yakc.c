@@ -8,6 +8,7 @@ TCBptr YKRdyList;		/* a list of TCBs of all ready tasks
 TCBptr YKSuspList;		/* tasks delayed or suspended */
 TCBptr YKAvailTCBList;		/* a list of available TCBs */
 TCBptr YKCurrentTask;
+TCBptr YKNextTask;
 
 unsigned short YKTaskListSize;
 unsigned short YKCtxSwCount;
@@ -105,6 +106,7 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 	newTCB->ready = TRUE;
 	newTCB->blocked = FALSE;
 	newTCB->delay = FALSE;
+	newTCB->hasRun = FALSE;
 	newTCB->priority = newTaskPriority;
 
 	//Initialize to beginning of Ready list
@@ -173,10 +175,14 @@ void YKScheduler()
 	{
 		if(check_Ptr->ready == TRUE)
 		{
+			
+			 printString("Sheduler 1...\n");
+			YKNextTask = check_Ptr;
 			// This task is the highest ready task, so call scheduler.
-			YKDispatcher(check_Ptr);
+			YKDispatcher(1);
 			YKCurrentTask = check_Ptr; //Reset the current task to the new task
 			// Set pointer to null so loop is over.
+			 printString("Sheduler 2...\n");
 			check_Ptr = NULL;
 		}
 		else

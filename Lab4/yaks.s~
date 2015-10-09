@@ -17,6 +17,14 @@ YKExitMutex:
 YKDispatcher:
 	push	bp
 	mov		bp,sp
+
+	cmp		word[YKNextTask+12],0
+	jne		saveContext
+	mov		word[YKNextTask+12],1
+	mov		bx, word[YKNextTask]
+	call	word[bx]
+
+saveContext:
 	cmp		word[bp+4], 0
 	je		Restore
 	pushf
@@ -30,11 +38,11 @@ YKDispatcher:
 	push 	di
 	push 	ds
 	push 	es
-	mov		[YKCurrentTsk+2], sp
+	mov		word[YKCurrentTask+4], sp
 	
 	
 Restore:	
-	mov     sp, [bp+4]
+	mov     sp, word[YKNextTask+4]
 	pop 	es
 	pop 	ds
 	pop 	di
