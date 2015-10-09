@@ -18,6 +18,17 @@ YKDispatcher2:
 	pushf
 	push    cs
 	push	word[bp+2]
+	push 	ax
+	push 	bx
+	push 	cx
+	push 	dx
+	push 	si
+	push 	di
+	push 	ds
+	push 	es
+	mov		bx, word[YKCurrentTask]
+	mov		word[bx+2], bp
+	mov		word[bx+4], sp
 
 	mov		bx, word[YKNextTask]			;
 	mov		word[YKCurrentTask], bx			;YKCurrentTask = YKNextTask			

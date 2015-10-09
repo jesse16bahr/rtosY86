@@ -99,8 +99,8 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 	temp_sp = stackPtr;
 
 	temp_sp--;
-	*temp_sp = (unsigned int)functionPtr;
-	temp_sp--;
+	//*temp_sp = (unsigned int)functionPtr;
+	//temp_sp--;
 	//*temp_sp = (unsigned int)stackPtr;
 
 	//Set the TCBs initial values
