@@ -174,6 +174,7 @@ void YKScheduler()
 		if(check_Ptr->ready == TRUE)
 		{
 			// This task is the highest ready task, so call scheduler.
+			
 			YKDispatcher(check_Ptr);
 			YKCurrentTask = check_Ptr; //Reset the current task to the new task
 			// Set pointer to null so loop is over.
