@@ -21,6 +21,7 @@ void CTask(void);
 
 void main(void)
 {
+	YKEnterMutex();
     YKInitialize();
     
     printString("Creating task A...\n");

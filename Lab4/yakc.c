@@ -20,9 +20,6 @@ TCB YK_TCB_Array[MAX_TASKS+1];	/* array to allocate all needed TCBs int YKIdleSt
 
 int YKIdleStk[YKIDLE_STACKSIZE]; //Do I need a +1 here
 
- //This is syntax for function pointers
- //void (*p1_foo)() = foo;
- //void (*p3_foo)() = &foo;
 
 
 /*
@@ -95,7 +92,7 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 	else
 	{
 		//Initialize temp TCB pointer
-		newTCB = (TCBptr) &YK_TCB_Array[YKTaskListSize-1];
+		newTCB = (TCBptr) &YK_TCB_Array[YKTaskListSize];
 		
 	}	
 
@@ -145,11 +142,13 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 		YKRdyList = newTCB;
 	}
 
+	YKTaskListSize++;	
+
 	if(YKTasksRunning == TRUE){
 		YKScheduler();
 	}
 	
-	YKTaskListSize++;	
+	
 }
 
 /*

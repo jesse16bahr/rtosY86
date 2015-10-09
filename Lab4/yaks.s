@@ -22,6 +22,7 @@ YKDispatcher:
 	jne		saveContext
 	mov		word[YKNextTask+14],1
 	mov		bx, word[YKNextTask]
+	mov		sp, word[bx+4]
 	call	word[bx]
 
 saveContext:
@@ -38,11 +39,12 @@ saveContext:
 	push 	di
 	push 	ds
 	push 	es
-	mov		word[YKCurrentTask+4], sp
-	
+	mov		bx,word[YKCurrentTask]
+	mov		word[bx+4], sp
 	
 Restore:	
-	mov     sp, word[YKNextTask+4]
+	mov		bx, word[YKNextTask]
+	mov		sp, word[bx+4]
 	pop 	es
 	pop 	ds
 	pop 	di
