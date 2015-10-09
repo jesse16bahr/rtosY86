@@ -18,11 +18,12 @@ YKDispatcher:
 	push	bp
 	mov		bp,sp
 
-	cmp		word[YKNextTask+14],0
-	jne		saveContext
-	mov		word[YKNextTask+14],1
-	mov		bx, word[YKNextTask]
-	call	word[bx]
+	;cmp		word[YKNextTask+14],0
+	;jne		saveContext
+	;mov		word[YKNextTask+14],1
+	;mov		bx, word[YKNextTask]
+	;mov		sp, word[bx+4]
+	;call	word[bx]
 
 saveContext:
 	cmp		word[bp+4], 0
@@ -38,11 +39,20 @@ saveContext:
 	push 	di
 	push 	ds
 	push 	es
-	mov		word[YKCurrentTask+4], sp
-	
+	cmp		word[YKNextTask+14],0
+	je		Restore
+
+savePointers:
+	mov		bx,word[YKCurrentTask]
+	mov		word[bx+4], sp
+	mov		word[bx+2], bp
 	
 Restore:	
-	mov     sp, word[YKNextTask+4]
+	mov		word[YKNextTask+14],1  ;stop from doing first time stuff
+	mov		bx, word[YKNextTask]	
+	mov		bp, word[bx+4]			;Grab base pointer
+	mov		cx, bx
+	mov		word[bp+2], bx
 	pop 	es
 	pop 	ds
 	pop 	di
