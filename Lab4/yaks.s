@@ -13,11 +13,11 @@ YKExitMutex:
 	ret
 
 YKDispatcher2:
-	push	bp
-	mov		bp,sp
 	pushf
 	push    cs
 	push	word[bp+2]
+	push	bp
+	mov		bp,sp
 	push 	ax
 	push 	bx
 	push 	cx

@@ -190,13 +190,13 @@ void YKScheduler()
 			
 			YKNextTask = check_Ptr;
 
-			if(YKNextTask->hasRun == 0)
+			if(YKNextTask->hasRun == 0) //Task hasn't run yet this is the first time
 			{
 				YKCtxSwCount++;
 				YKNextTask->hasRun = 1;
 				YKDispatcher2();
 			}
-			else
+			else //Task has already run
 			{
 				// This task is the highest ready task, so call scheduler.
 				YKDispatcher();
