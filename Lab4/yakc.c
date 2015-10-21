@@ -79,6 +79,7 @@ void YKIdleTask()
 	unsigned char temp;
 	while(TRUE)	
 	{		
+		printString("IN IDLE");
 		temp++;
 		temp++;
 		YKIdleCount++;
@@ -122,7 +123,7 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 	newTCB->sp = temp_sp;
 	newTCB->ready = TRUE;
 	newTCB->blocked = FALSE;
-	newTCB->delay = FALSE;
+	newTCB->delay = 0;
 	newTCB->hasRun = FALSE;
 	newTCB->priority = newTaskPriority;
 	newTCB->next = NULL;
@@ -223,10 +224,7 @@ void YKScheduler()
 			
 			check_Ptr = NULL;
 		}
-		else
-		{
-			// We have not found an available task yet, so go to next.
-			check_Ptr = check_Ptr->next;
-		}
+		
+		check_Ptr = check_Ptr->next;
 	}
 }
