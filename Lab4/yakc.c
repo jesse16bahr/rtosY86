@@ -39,6 +39,13 @@ void YKInitialize()
 	YKNewTask(YKIdleTask, (void *)&YKIdleStk[YKIDLE_STACKSIZE], YKIDLE_PRIORITY);
 }
 
+void YKDelayTask(unsigned int count)
+{
+
+	YKCurrentTask->delay = count;
+	YKScheduler();
+}
+
 /*
  *
  */
@@ -55,6 +62,12 @@ void YKExitISR()
 	if(YKInterruptDepth > 0)
 	{
 		YKInterruptDepth--;
+	}
+	
+	//Call the Scheduler only if we are leaving all interrupts
+	if(YKInterruptDepth == 0)
+	{
+		YKScheduler();
 	}
 }
 
@@ -185,7 +198,7 @@ void YKScheduler()
 	// Tasks should be stored in order of priority.
 	while(check_Ptr != NULL)
 	{
-		if(check_Ptr->ready == TRUE)
+		if(check_Ptr->ready == TRUE && check_Ptr->delay == 0)
 		{
 			
 			YKNextTask = check_Ptr;
@@ -196,8 +209,14 @@ void YKScheduler()
 				YKNextTask->hasRun = 1;
 				YKDispatcher2();
 			}
+			else if(YKNextTask == YKCurrentTask)
+			{
+				// This task is the highest ready task, so call scheduler.
+				YKDispatcher();
+			}
 			else //Task has already run
 			{
+				YKCtxSwCount++;
 				// This task is the highest ready task, so call scheduler.
 				YKDispatcher();
 			}

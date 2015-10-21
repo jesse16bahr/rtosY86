@@ -7,5 +7,7 @@
 #define YKIDLE_STACKSIZE 256
 #define YKIDLE_PRIORITY 100
 
+void userTickHandler();
+
 
 #endif
