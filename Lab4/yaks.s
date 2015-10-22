@@ -2,6 +2,7 @@ YKEnterMutex:
 	push bp
 	mov  bp, sp
 	cli
+	mov		sp, bp
 	pop bp
 	ret
 
@@ -9,6 +10,7 @@ YKExitMutex:
 	push bp
 	mov  bp, sp
 	sti
+	mov		sp, bp
 	pop bp
 	ret
 
