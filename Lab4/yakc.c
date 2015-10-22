@@ -79,7 +79,6 @@ void YKIdleTask()
 	unsigned char temp;
 	while(TRUE)	
 	{		
-		printString("IN IDLE");
 		temp++;
 		temp++;
 		YKIdleCount++;
@@ -147,11 +146,15 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 				newTCB->next = tmp_current;
 				newTCB->prev = tmp_current->prev;
 				tmp_current->prev = newTCB;
-				if(newTCB->prev == NULL){
+				if(newTCB->prev == NULL)
+				{
 					YKRdyList = newTCB;
 				}
-				tmp_next = tmp_current->next;
-				tmp_current  = tmp_current->next;
+				else
+				{
+					tmp_prev = newTCB->prev;
+					tmp_prev->next = newTCB;
+				}
 				tmp_current = NULL;
 			}
 			else if(tmp_current->next == NULL){
@@ -160,8 +163,11 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 				newTCB->next = NULL;
 			}
 
-			tmp_next = tmp_current->next;
-			tmp_current = tmp_next;
+			if(tmp_current != NULL)
+			{
+				tmp_next = tmp_current->next;
+				tmp_current = tmp_next;
+			}
 	
 		} while(tmp_current != NULL);
 	}
