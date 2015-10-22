@@ -39,6 +39,13 @@ void YKInitialize()
 	YKNewTask(YKIdleTask, (void *)&YKIdleStk[YKIDLE_STACKSIZE], YKIDLE_PRIORITY);
 }
 
+void YKDelayTask(unsigned int count)
+{
+
+	YKCurrentTask->delay = count;
+	YKScheduler();
+}
+
 /*
  *
  */
@@ -55,6 +62,12 @@ void YKExitISR()
 	if(YKInterruptDepth > 0)
 	{
 		YKInterruptDepth--;
+	}
+	
+	//Call the Scheduler only if we are leaving all interrupts
+	if(YKInterruptDepth == 0)
+	{
+		YKScheduler();
 	}
 }
 
@@ -82,7 +95,7 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 	TCBptr tmp_next;
 	TCBptr tmp_prev;
 	TCBptr tmp_current;
-	unsigned short* temp_sp;
+	unsigned int* temp_sp;
 
 	//Check to see if we are creating the first TCB
 	if(YKTaskListSize == 0)
@@ -99,9 +112,9 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 	temp_sp = stackPtr;
 
 	temp_sp--;
-	*temp_sp = (int)functionPtr;
-	temp_sp--;
-	*temp_sp = (int)stackPtr;
+	//*temp_sp = (unsigned int)functionPtr;
+	//temp_sp--;
+	//*temp_sp = (unsigned int)stackPtr;
 
 	//Set the TCBs initial values
 	newTCB->pc = functionPtr;
@@ -109,7 +122,7 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 	newTCB->sp = temp_sp;
 	newTCB->ready = TRUE;
 	newTCB->blocked = FALSE;
-	newTCB->delay = FALSE;
+	newTCB->delay = 0;
 	newTCB->hasRun = FALSE;
 	newTCB->priority = newTaskPriority;
 	newTCB->next = NULL;
@@ -133,11 +146,16 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 				newTCB->next = tmp_current;
 				newTCB->prev = tmp_current->prev;
 				tmp_current->prev = newTCB;
-				if(newTCB->prev == NULL){
+				if(newTCB->prev == NULL)
+				{
 					YKRdyList = newTCB;
 				}
-				tmp_next = tmp_current->next;
-				tmp_current  = tmp_current->next;
+				else
+				{
+					tmp_prev = newTCB->prev;
+					tmp_prev->next = newTCB;
+				}
+
 				tmp_current = NULL;
 			}
 			else if(tmp_current->next == NULL){
@@ -146,8 +164,11 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 				newTCB->next = NULL;
 			}
 
-			tmp_next = tmp_current->next;
-			tmp_current = tmp_next;
+			if(tmp_current != NULL)
+			{
+				tmp_next = tmp_current->next;
+				tmp_current = tmp_next;
+			}
 	
 		} while(tmp_current != NULL);
 	}
@@ -156,9 +177,8 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 		YKRdyList = newTCB;
 	}
 
-	YKTaskListSize++;	
+	YKTaskListSize++;						//Increment Task Size
 	if(YKTasksRunning == TRUE){
-		printString("True...\n");
 		YKScheduler();
 	}
 	
@@ -179,29 +199,46 @@ void YKRun()
  */
 void YKScheduler()
 {
+	
 	// This pointer will update as we move through the task list.
-	TCBptr check_Ptr = YKRdyList;
+	TCBptr check_Ptr; 
 
+	YKEnterMutex();
+
+	check_Ptr = YKRdyList;
+	
 	// Follow the linked list, check task to see if it is ready, if is ready call the Dispatcher
 	// Tasks should be stored in order of priority.
 	while(check_Ptr != NULL)
 	{
-		if(check_Ptr->ready == TRUE)
+		if(check_Ptr->ready == TRUE && check_Ptr->delay == 0)
 		{
 			
-			printString("Sheduler 1...\n");
 			YKNextTask = check_Ptr;
-			// This task is the highest ready task, so call scheduler.
-			YKDispatcher(1);
-			YKCurrentTask = check_Ptr; //Reset the current task to the new task
-			// Set pointer to null so loop is over.
-			 printString("Sheduler 2...\n");
+
+			if(YKNextTask->hasRun == 0) //Task hasn't run yet this is the first time
+			{
+				YKCtxSwCount++;
+				YKNextTask->hasRun = 1;
+				YKDispatcher2();
+			}
+			else if(YKNextTask == YKCurrentTask)
+			{
+				// This task is the highest ready task, so call scheduler.
+				YKDispatcher();
+			}
+			else //Task has already run
+			{
+				YKCtxSwCount++;
+				// This task is the highest ready task, so call scheduler.
+				YKDispatcher();
+			}
+			
 			check_Ptr = NULL;
 		}
-		else
-		{
-			// We have not found an available task yet, so go to next.
-			check_Ptr = check_Ptr->next;
-		}
+		
+		check_Ptr = check_Ptr->next;
 	}
+
+	YKExitMutex();
 }

@@ -32,6 +32,9 @@ typedef struct taskblock
 extern TCB  YK_TCB_Array[MAX_TASKS+1];	/* array to allocate all needed TCBs*/
 extern unsigned short YKCtxSwCount;
 extern unsigned short YKIdleCount;
+extern TCBptr YKCurrentTask;
+extern TCBptr YKRdyList;
+extern TCBptr YKNextTask;
 
 /*
  *
@@ -56,6 +59,12 @@ void YKExitMutex();
  */
 void YKIdleTask();
 
+
+/*
+ *
+ */
+void YKDelayTask(unsigned int count);
+
 /*
  *
  */
@@ -75,5 +84,10 @@ void YKScheduler();
  *
  */
 void YKDispatcher();
+
+/*
+ *
+ */
+void YKDispatcher2();
 
 #endif

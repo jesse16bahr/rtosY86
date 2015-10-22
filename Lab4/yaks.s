@@ -1,9 +1,8 @@
-
-
 YKEnterMutex:
 	push bp
 	mov  bp, sp
 	cli
+	mov		sp, bp
 	pop bp
 	ret
 
@@ -11,26 +10,16 @@ YKExitMutex:
 	push bp
 	mov  bp, sp
 	sti
+	mov		sp, bp
 	pop bp
 	ret
 
-YKDispatcher:
-	push	bp
-	mov		bp,sp
-
-	;cmp		word[YKNextTask+14],0
-	;jne		saveContext
-	;mov		word[YKNextTask+14],1
-	;mov		bx, word[YKNextTask]
-	;mov		sp, word[bx+4]
-	;call	word[bx]
-
-saveContext:
-	cmp		word[bp+4], 0
-	je		Restore
+YKDispatcher2:
 	pushf
 	push    cs
-	;push	ip
+	push	word[bp+2]
+	push	bp
+	mov		bp,sp
 	push 	ax
 	push 	bx
 	push 	cx
@@ -39,20 +28,45 @@ saveContext:
 	push 	di
 	push 	ds
 	push 	es
-	cmp		word[YKNextTask+14],0
-	je		Restore
-
-savePointers:
-	mov		bx,word[YKCurrentTask]
-	mov		word[bx+4], sp
+	mov		bx, word[YKCurrentTask]
 	mov		word[bx+2], bp
+	mov		word[bx+4], sp
+
+	mov		bx, word[YKNextTask]			;
+	mov		word[YKCurrentTask], bx			;YKCurrentTask = YKNextTask			
+	mov		bp, word[bx+2]					;bp = YKNextTask->bp
+	mov		sp, word[bx+4]					;sp = YKNextTask->sp
+	mov		cx, word[bx]					;cx = YKNextTask->pc
+	sti
+	pushf
+	push    cs
+	push	cx								;push the current ip
+	iret
+
+YKDispatcher:
+	pushf									;save the context first
+	push    cs
+	push	word[bp+2]
+	push	bp
+	mov		bp,sp
+	push 	ax
+	push 	bx
+	push 	cx
+	push 	dx
+	push 	si
+	push 	di
+	push 	ds
+	push 	es
+	mov		bx, word[YKCurrentTask]
+	mov		word[bx+2], bp
+	mov		word[bx+4], sp
+	
 	
 Restore:	
-	mov		word[YKNextTask+14],1  ;stop from doing first time stuff
-	mov		bx, word[YKNextTask]	
-	mov		bp, word[bx+4]			;Grab base pointer
-	mov		cx, bx
-	mov		word[bp+2], bx
+	mov		bx, word[YKNextTask]			;YKCurrentTask = YKNextTask
+	mov		word[YKCurrentTask], bx			; 		"			"			
+	mov		bp, word[bx+2]					;bp = YKNextTask->bp
+	mov		sp, word[bx+4]					;sp = YKNextTask->sp
 	pop 	es
 	pop 	ds
 	pop 	di
@@ -64,3 +78,5 @@ Restore:
 	mov		sp, bp
 	pop		bp
 	iret
+
+

@@ -27,7 +27,7 @@ void main(void)
     YKInitialize();
     
     printString("Creating tasks...\n");
-    YKNewTask(ATask, (void *) &AStk[ASTACKSIZE], 3); 
+    YKNewTask(ATask, (void *) &AStk[ASTACKSIZE], 3);
     YKNewTask(BTask, (void *) &BStk[BSTACKSIZE], 5);
     YKNewTask(CTask, (void *) &CStk[CSTACKSIZE], 7);
     YKNewTask(DTask, (void *) &DStk[DSTACKSIZE], 8);
