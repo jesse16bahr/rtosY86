@@ -155,6 +155,7 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 					tmp_prev = newTCB->prev;
 					tmp_prev->next = newTCB;
 				}
+
 				tmp_current = NULL;
 			}
 			else if(tmp_current->next == NULL){
@@ -198,8 +199,13 @@ void YKRun()
  */
 void YKScheduler()
 {
+	
 	// This pointer will update as we move through the task list.
-	TCBptr check_Ptr = YKRdyList;
+	TCBptr check_Ptr; 
+
+	YKEnterMutex();
+
+	check_Ptr = YKRdyList;
 	
 	// Follow the linked list, check task to see if it is ready, if is ready call the Dispatcher
 	// Tasks should be stored in order of priority.
@@ -233,4 +239,6 @@ void YKScheduler()
 		
 		check_Ptr = check_Ptr->next;
 	}
+
+	YKExitMutex();
 }
