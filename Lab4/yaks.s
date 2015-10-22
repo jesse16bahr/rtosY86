@@ -37,6 +37,7 @@ YKDispatcher2:
 	mov		bp, word[bx+2]					;bp = YKNextTask->bp
 	mov		sp, word[bx+4]					;sp = YKNextTask->sp
 	mov		cx, word[bx]					;cx = YKNextTask->pc
+	sti
 	pushf
 	push    cs
 	push	cx								;push the current ip
