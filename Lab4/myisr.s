@@ -18,6 +18,8 @@ Tick:
 	push 	di
 	push 	ds
 	push 	es
+	mov		bx, word[YKCurrentTask]
+	mov		word[bx+4], sp
 	call	YKEnterISR
 	sti
 	call    YKTickHandler 
@@ -48,6 +50,8 @@ Keyboard:
 	push 	di
 	push 	ds
 	push 	es
+	mov		bx, word[YKCurrentTask]
+	mov		word[bx+4], sp
 	call	YKEnterISR
 	sti
 	call keyboardHandler
