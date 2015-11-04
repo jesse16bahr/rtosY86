@@ -17,7 +17,7 @@ YKExitMutex:
 YKDispatcher2:
 	pushf
 	push    cs
-	push	word[bp+2]
+	push	word[bp+2]						;We need this because flags and cs are pushed first
 	push	bp
 	mov		bp,sp
 	push 	ax
@@ -57,12 +57,12 @@ YKDispatcher:
 	push 	di
 	push 	ds
 	push 	es
-	mov		bx, word[YKCurrentTask]
+	mov		bx, word[YKCurrentTask]			;Grab address of current Tasks TCB
 	mov		word[bx+2], bp
 	mov		word[bx+4], sp
 	
 	
-Restore:	
+Restore:									;This is where we switch tasks
 	mov		bx, word[YKNextTask]			;YKCurrentTask = YKNextTask
 	mov		word[YKCurrentTask], bx			; 		"			"			
 	mov		bp, word[bx+2]					;bp = YKNextTask->bp

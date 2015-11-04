@@ -20,7 +20,7 @@ typedef struct taskblock
 	unsigned short priority;	 //Lower numbers have higher priority
 	unsigned short delay;        //Help us know if task is delayed
 
-	unsigned short blocked;   //To help us know if the task is is blocked
+	unsigned short sem_block;   //To help us know if the task is is blocked by a semaphore
 	unsigned short ready;      //To help us know if task is ready to run
 	unsigned short hasRun;
 
@@ -29,12 +29,21 @@ typedef struct taskblock
 
 } TCB;
 
+
 extern TCB  YK_TCB_Array[MAX_TASKS+1];	/* array to allocate all needed TCBs*/
 extern unsigned short YKCtxSwCount;
 extern unsigned short YKIdleCount;
 extern TCBptr YKCurrentTask;
 extern TCBptr YKRdyList;
 extern TCBptr YKNextTask;
+
+typedef struct semaphore *YKSEMptr; 
+typedef struct semaphore
+{
+	signed short value;
+} YKSEM;
+
+extern YKSEM YKSEM_Array[MAX_SEM];
 
 /*
  *
@@ -69,6 +78,21 @@ void YKDelayTask(unsigned int count);
  *
  */
 void YKNewTask();
+
+/*
+ *
+ */
+void YKSemCreate();
+
+/*
+ *
+ */
+void YKSemPost();
+
+/*
+ *
+ */
+void YKSemPend();
 
 /*
  *

@@ -11,12 +11,15 @@ TCBptr YKCurrentTask;
 TCBptr YKNextTask;
 
 unsigned short YKTaskListSize;
+unsigned short YKSemListSize;
 unsigned short YKCtxSwCount;
 char YKTasksRunning;
 char YKInterruptDepth;
 unsigned short YKIdleCount;
 				  /* (extra one is for the idle task) */
 TCB YK_TCB_Array[MAX_TASKS+1];	/* array to allocate all needed TCBs int YKIdleStk[YKIDLE_STACKSIZE]; //Allocate space for YK idle task*/
+
+YKSEM YKSEM_Array[MAX_SEM]; /* array to allocate space for semaphores */
 
 int YKIdleStk[YKIDLE_STACKSIZE]; //Do I need a +1 here
 
@@ -28,6 +31,7 @@ int YKIdleStk[YKIDLE_STACKSIZE]; //Do I need a +1 here
 void YKInitialize()
 {
 	YKInterruptDepth = 0;
+	YKSemListSize = 0;
 	YKIdleCount = 0;
 
 	//Initial tasklist size is 0
@@ -121,7 +125,7 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 	newTCB->bp = temp_sp;
 	newTCB->sp = temp_sp;
 	newTCB->ready = TRUE;
-	newTCB->blocked = FALSE;
+	newTCB->sem_block = FALSE;	
 	newTCB->delay = 0;
 	newTCB->hasRun = FALSE;
 	newTCB->priority = newTaskPriority;
@@ -186,6 +190,49 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 }
 
 /*
+ * Create a new semaphore by pointing to an available position in semaphore array
+ */
+YKSEMptr YKSemCreate(signed short initSemVal)
+{
+		YKSEMptr newSem = &YKSEM_Array[YKSemListSize];
+		newSem->flag = initSemVal;
+		YKSemListSize++;
+		return newSem;
+}
+
+/*
+ *
+ */
+void YKSemPost(YKSEMptr sem)
+{
+	YKEnterMutex();
+	sem_flag++;
+	YKExitMutex();
+}
+
+/*
+ *
+ */
+void YKSemPend()
+{
+	YKEnterMutex();
+	if(sem->flag > 0)
+	{
+		sem->flag--;
+		YKCurrentTask->sem_block = FALSE;
+		YKExitMutex();
+		return;
+	}
+	else
+	{
+		YKCurrentTask->sem_block = TRUE;	
+		YKScheduler();
+	}	
+}
+
+
+
+/*
  *
  */
 void YKRun()
@@ -211,7 +258,7 @@ void YKScheduler()
 	// Tasks should be stored in order of priority.
 	while(check_Ptr != NULL)
 	{
-		if(check_Ptr->ready == TRUE && check_Ptr->delay == 0)
+		if(check_Ptr->ready == TRUE && check_Ptr->delay == 0 && check_Ptr->sem_block != TRUE)
 		{
 			
 			YKNextTask = check_Ptr;
