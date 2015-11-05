@@ -229,8 +229,8 @@ void YKSemPost(YKSEM* sem)
 
 	if(YKInterruptDepth == 0)
 	{
-		YKScheduler();
 		YKExitMutex();
+		YKScheduler();	
 	}
 	else
 	{
@@ -247,7 +247,7 @@ void YKSemPend(YKSEM* sem)
 	TCBptr tmp_next;
 	TCBptr tmp_prev;
 	 
-	//YKEnterMutex();
+	YKEnterMutex();
 	//printInt(sem);
 	//printNewLine();
 	//printInt(sem->value);
@@ -308,8 +308,8 @@ void YKSemPend(YKSEM* sem)
 		}
 		
 		YKCurrentTask->sem_block = TRUE;	
+		YKExitMutex();
 		YKScheduler();
-		//YKExitMutex();
 	}	
 }
 
