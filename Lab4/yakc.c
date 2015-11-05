@@ -211,11 +211,6 @@ void YKSemPost(YKSEM* sem)
 	//printNewLine();
 	 //printString("POST\r\n");
 	//printNewLine();
-
-	if(sem->pendListStart == NULL)
-	{
-		sem->value = 1;
-	}
 	
 	if(tmp_current != NULL && sem->value == 0)
 	{
@@ -227,10 +222,15 @@ void YKSemPost(YKSEM* sem)
 		tmp_current->SemPrev = NULL;				//	"   "
 	
 	}
+	else
+	{
+		sem->value++;
+	}
 
 	if(YKInterruptDepth == 0)
 	{
 		YKScheduler();
+		YKExitMutex();
 	}
 	else
 	{
@@ -247,7 +247,7 @@ void YKSemPend(YKSEM* sem)
 	TCBptr tmp_next;
 	TCBptr tmp_prev;
 	 
-	YKEnterMutex();
+	//YKEnterMutex();
 	//printInt(sem);
 	//printNewLine();
 	//printInt(sem->value);
@@ -255,7 +255,7 @@ void YKSemPend(YKSEM* sem)
 	{
 		//printString("TAKE SEM\r\n");
 		//printNewLine();
-		sem->value = 0;
+		sem->value--;
 		YKCurrentTask->sem_block = FALSE;
 		YKExitMutex();
 		return;
@@ -309,6 +309,7 @@ void YKSemPend(YKSEM* sem)
 		
 		YKCurrentTask->sem_block = TRUE;	
 		YKScheduler();
+		//YKExitMutex();
 	}	
 }
 
