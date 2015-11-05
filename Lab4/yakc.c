@@ -194,7 +194,7 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
  */
 YKSEM* YKSemCreate(signed short initSemVal)
 {
-		YKSEM* newSem = &YKSEM_Array[YKSemListSize];
+		YKSEM* newSem = (YKSEM*)&YKSEM_Array[YKSemListSize];
 		newSem->value = initSemVal;
 		YKSemListSize++;
 		return newSem;
@@ -205,19 +205,36 @@ YKSEM* YKSemCreate(signed short initSemVal)
  */
 void YKSemPost(YKSEM* sem)
 {
-	YKEnterMutex();
 	TCBptr tmp_current = sem->pendListStart;
+	YKEnterMutex();
+	//printInt(sem);
+	//printNewLine();
+	 //printString("POST\r\n");
+	//printNewLine();
 	
-	sem->value++;
-	if(tmp_current != NULL && sem->value > 0)
+	if(tmp_current != NULL && sem->value == 0)
 	{
 		//Set the first task pending back to enabled
-		tmp_current->sem_block = FALSE;
-		sem->pendListStart = tmp_current->next;		
-		tmp_current->SemNext = NULL;
-		tmp_current->SemPrev = NULL;	
+		tmp_current->sem_block = FALSE;				//Allow the current block to run
+		sem->pendListStart = tmp_current->SemNext;		//make list start at the next item now
+		tmp_current->SemNext = NULL;				//take off the front
+		tmp_current->SemPrev = NULL;				//	"   "
+	
 	}
-	YKExitMutex();
+
+	if(sem->pendListStart == NULL)
+	{
+		sem->value = 1;
+	}
+
+	if(YKInterruptDepth == 0)
+	{
+		YKScheduler();
+	}
+	else
+	{
+		YKExitMutex();
+	}
 }
 
 /*
@@ -225,19 +242,28 @@ void YKSemPost(YKSEM* sem)
  */
 void YKSemPend(YKSEM* sem)
 {
+	TCBptr tmp_current;
+	TCBptr tmp_next;
+	TCBptr tmp_prev;
+	 
 	YKEnterMutex();
+	//printInt(sem);
+	//printNewLine();
+	//printInt(sem->value);
 	if(sem->value > 0)
 	{
-		sem->value--;
+		//printString("TAKE SEM\r\n");
+		//printNewLine();
+		sem->value = 0;
 		YKCurrentTask->sem_block = FALSE;
 		YKExitMutex();
 		return;
 	}
 	else
 	{
-		TCBptr tmp_current = sem->pendListStart;
-		TCBptr tmp_next;
-		TCBptr tmp_prev;
+		//printString("PEND\r\n");
+		//printNewLine();
+		tmp_current = sem->pendListStart;
 		if(tmp_current != NULL)
 		{
 			//Go through the loop until we reach the end
@@ -254,7 +280,7 @@ void YKSemPend(YKSEM* sem)
 					}
 					else
 					{
-						tmp_prev = YKCurrentTask->SemPrev;
+						tmp_prev = YKCurrentTask->SemPrev; //This is for in between
 						tmp_prev->SemNext = YKCurrentTask;
 					}
 
@@ -277,8 +303,9 @@ void YKSemPend(YKSEM* sem)
 		else
 		{
 			sem->pendListStart = YKCurrentTask;
+			YKCurrentTask->SemPrev = NULL;
 		}
-
+		
 		YKCurrentTask->sem_block = TRUE;	
 		YKScheduler();
 	}	
@@ -312,7 +339,7 @@ void YKScheduler()
 	// Tasks should be stored in order of priority.
 	while(check_Ptr != NULL)
 	{
-		if(check_Ptr->ready == TRUE && check_Ptr->delay == 0 && check_Ptr->sem_block != TRUE)
+		if(check_Ptr->ready == TRUE && check_Ptr->delay == 0 && check_Ptr->sem_block == FALSE)
 		{
 			
 			YKNextTask = check_Ptr;

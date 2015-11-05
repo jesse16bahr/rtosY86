@@ -159,6 +159,14 @@ void main(void)
     SSemPtr = YKSemCreate(0);
     WSemPtr = YKSemCreate(0);
     NSemPtr = YKSemCreate(0);
+	printInt(PSemPtr);
+	printNewLine();
+	printInt(SSemPtr);
+	printNewLine();
+	printInt(WSemPtr);
+	printNewLine();
+	printInt(NSemPtr);
+	printNewLine();
     YKNewTask(TaskStat, (void *) &TaskStatStk[TASK_STACK_SIZE], 30);
     
     YKRun();

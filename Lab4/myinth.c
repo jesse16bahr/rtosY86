@@ -50,8 +50,8 @@ void keyboardHandler(){
 		printNewLine();
 	}
 	if(KeyBuffer == 'p'){
-		/*YKSemPost(NSemPtr);
-		printNewLine();
+		YKSemPost(NSemPtr);
+		/*printNewLine();
 		printString("KEYPRESS ");       // Print string
 		printChar(KeyBuffer);
 		printString(" IGNORED");       // Print string
