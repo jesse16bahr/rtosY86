@@ -192,10 +192,10 @@ void YKNewTask(void* functionPtr, void* stackPtr, int newTaskPriority)
 /*
  * Create a new semaphore by pointing to an available position in semaphore array
  */
-YKSEMptr YKSemCreate(signed short initSemVal)
+YKSEM* YKSemCreate(signed short initSemVal)
 {
-		YKSEMptr newSem = &YKSEM_Array[YKSemListSize];
-		newSem->flag = initSemVal;
+		YKSEM* newSem = &YKSEM_Array[YKSemListSize];
+		newSem->value = initSemVal;
 		YKSemListSize++;
 		return newSem;
 }
@@ -203,28 +203,82 @@ YKSEMptr YKSemCreate(signed short initSemVal)
 /*
  *
  */
-void YKSemPost(YKSEMptr sem)
+void YKSemPost(YKSEM* sem)
 {
 	YKEnterMutex();
-	sem_flag++;
+	TCBptr tmp_current = sem->pendListStart;
+	
+	sem->value++;
+	if(tmp_current != NULL && sem->value > 0)
+	{
+		//Set the first task pending back to enabled
+		tmp_current->sem_block = FALSE;
+		sem->pendListStart = tmp_current->next;		
+		tmp_current->SemNext = NULL;
+		tmp_current->SemPrev = NULL;	
+	}
 	YKExitMutex();
 }
 
 /*
  *
  */
-void YKSemPend()
+void YKSemPend(YKSEM* sem)
 {
 	YKEnterMutex();
-	if(sem->flag > 0)
+	if(sem->value > 0)
 	{
-		sem->flag--;
+		sem->value--;
 		YKCurrentTask->sem_block = FALSE;
 		YKExitMutex();
 		return;
 	}
 	else
 	{
+		TCBptr tmp_current = sem->pendListStart;
+		TCBptr tmp_next;
+		TCBptr tmp_prev;
+		if(tmp_current != NULL)
+		{
+			//Go through the loop until we reach the end
+			do 
+			{
+				if(YKCurrentTask->priority < tmp_current->priority)
+				{
+					YKCurrentTask->SemNext = tmp_current;
+					YKCurrentTask->SemPrev = tmp_current->SemPrev;
+					tmp_current->SemPrev = YKCurrentTask;
+					if(YKCurrentTask->SemPrev == NULL)
+					{
+						sem->pendListStart = YKCurrentTask;
+					}
+					else
+					{
+						tmp_prev = YKCurrentTask->SemPrev;
+						tmp_prev->SemNext = YKCurrentTask;
+					}
+
+					tmp_current = NULL;
+				}
+				else if(tmp_current->SemNext == NULL){
+					tmp_current->SemNext = YKCurrentTask;
+					YKCurrentTask->SemPrev = tmp_current;
+					YKCurrentTask->SemNext = NULL;
+				}
+
+				if(tmp_current != NULL)
+				{
+					tmp_next = tmp_current->SemNext;
+					tmp_current = tmp_next;
+				}
+	
+			} while(tmp_current != NULL);
+		}
+		else
+		{
+			sem->pendListStart = YKCurrentTask;
+		}
+
 		YKCurrentTask->sem_block = TRUE;	
 		YKScheduler();
 	}	

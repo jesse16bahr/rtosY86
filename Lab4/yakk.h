@@ -27,6 +27,9 @@ typedef struct taskblock
 	TCBptr prev;
 	TCBptr next;
 
+	TCBptr SemPrev;
+	TCBptr SemNext;
+
 } TCB;
 
 
@@ -41,6 +44,7 @@ typedef struct semaphore *YKSEMptr;
 typedef struct semaphore
 {
 	signed short value;
+	TCBptr pendListStart;
 } YKSEM;
 
 extern YKSEM YKSEM_Array[MAX_SEM];
@@ -82,17 +86,17 @@ void YKNewTask();
 /*
  *
  */
-void YKSemCreate();
+YKSEM* YKSemCreate(signed short initSemVal);
 
 /*
  *
  */
-void YKSemPost();
+void YKSemPost(YKSEM* sem);
 
 /*
  *
  */
-void YKSemPend();
+void YKSemPend(YKSEM* sem);
 
 /*
  *

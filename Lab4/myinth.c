@@ -4,6 +4,7 @@
 #include "yaku.h"
 
 extern int KeyBuffer;
+extern YKSEM *NSemPtr;
 int YKTickNumber = 0;
 
 void resetHandler(){
@@ -47,6 +48,14 @@ void keyboardHandler(){
 		}
 		printString("DELAY COMPLETE");       // Print string
 		printNewLine();
+	}
+	if(KeyBuffer == 'p'){
+		/*YKSemPost(NSemPtr);
+		printNewLine();
+		printString("KEYPRESS ");       // Print string
+		printChar(KeyBuffer);
+		printString(" IGNORED");       // Print string
+		printNewLine();*/
 	}
 	else
 	{
