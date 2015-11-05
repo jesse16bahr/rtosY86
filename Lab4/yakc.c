@@ -211,20 +211,21 @@ void YKSemPost(YKSEM* sem)
 	//printNewLine();
 	 //printString("POST\r\n");
 	//printNewLine();
+
+	if(sem->pendListStart == NULL)
+	{
+		sem->value = 1;
+	}
 	
 	if(tmp_current != NULL && sem->value == 0)
 	{
 		//Set the first task pending back to enabled
 		tmp_current->sem_block = FALSE;				//Allow the current block to run
 		sem->pendListStart = tmp_current->SemNext;		//make list start at the next item now
+		sem->pendListStart->SemPrev = NULL;		//make list start at the next item now
 		tmp_current->SemNext = NULL;				//take off the front
 		tmp_current->SemPrev = NULL;				//	"   "
 	
-	}
-
-	if(sem->pendListStart == NULL)
-	{
-		sem->value = 1;
 	}
 
 	if(YKInterruptDepth == 0)
