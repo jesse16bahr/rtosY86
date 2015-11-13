@@ -19,10 +19,81 @@ unsigned short YKIdleCount;
 				  /* (extra one is for the idle task) */
 TCB YK_TCB_Array[MAX_TASKS+1];	/* array to allocate all needed TCBs int YKIdleStk[YKIDLE_STACKSIZE]; //Allocate space for YK idle task*/
 
+YKQ YKQ_Array[MAX_QUEUES];
+
 YKSEM YKSEM_Array[MAX_SEM]; /* array to allocate space for semaphores */
+unsigned int YKNumberOfQueues;
 
 int YKIdleStk[YKIDLE_STACKSIZE]; //Do I need a +1 here
 
+
+/*
+ *
+ */
+YKQ *YKQCreate(void** start, unsigned int size)
+{
+	YKQ *newQueue = &YKQ_Array[YKNumberOfQueues];
+    YKNumberOfQueues++;
+
+	//Assign our never changing
+	newQueue->baseAddress = start;
+	newQueue->endAddress = start+size;
+    newQueue->size = size;
+
+	newQueue->length = 0;
+	newQueue->head = start;
+	newQueue->tail = start;
+
+	return newQueue;
+}
+
+/*
+ *
+ */
+void *YKQPend(YKQ* queue)
+{
+	void** tempHead;
+
+	if(queue->length <= 0)
+	{
+		YKCurrentTask->ready = FALSE;
+		YKScheduler();
+	}	
+	else
+	{
+		tempHead = queue->head;
+		queue->head++;
+		if(queue->head >= queue->endAddress)
+		{
+			queue->head = queue->baseAddress;
+		}
+		queue->length--;
+	}	
+
+	retun *tempHead;
+}
+
+/*
+ *
+ */
+int YKQPost(YKQ* queue, void* message)
+{
+	if(queue->length < queue->size)
+	{
+		*queue->tail = message;
+		queue->tail++;
+		queue->length++;
+		if(queue->tail >= queue->endAddress)
+		{
+			queue->tail = queue->start;
+		}
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
 
 
 /*
@@ -36,6 +107,7 @@ void YKInitialize()
 
 	//Initial tasklist size is 0
 	YKTaskListSize = 0;
+	YKNumberOfQueues = 0;
 	YKTasksRunning = FALSE;
 
 	//Create new task for Idle Task

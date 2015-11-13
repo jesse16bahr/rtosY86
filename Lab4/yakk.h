@@ -30,7 +30,22 @@ typedef struct taskblock
 	TCBptr SemPrev;
 	TCBptr SemNext;
 
+	TCBptr QuePrev;
+	TCBptr QueNext;
+
 } TCB;
+
+typedef struct queue
+{
+	void** baseAddress;
+	void** endAddress;
+	unsigned int size;
+
+	unsigned int length;
+	void** head;
+	void** tail;  
+
+} YKQ;
 
 
 extern TCB  YK_TCB_Array[MAX_TASKS+1];	/* array to allocate all needed TCBs*/
@@ -48,6 +63,21 @@ typedef struct semaphore
 } YKSEM;
 
 extern YKSEM YKSEM_Array[MAX_SEM];
+
+/*
+ *
+ */
+YKQ *YKQCreate(void** start, unsigned int size);
+
+/*
+ *
+ */
+void YKQPend(YKQ* queue);
+
+/*
+ *
+ */
+int YKQPost(YKQ* queue, void* message);
 
 /*
  *
