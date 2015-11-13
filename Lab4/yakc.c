@@ -32,7 +32,7 @@ int YKIdleStk[YKIDLE_STACKSIZE]; //Do I need a +1 here
  */
 YKQ *YKQCreate(void** start, unsigned int size)
 {
-	YKQ *newQueue = &YKQ_Array[YKNumberOfQueues];
+	YKQ *newQueue = (YKQ *) &YKQ_Array[YKNumberOfQueues];
     YKNumberOfQueues++;
 
 	//Assign our never changing
@@ -60,7 +60,7 @@ void *YKQPend(YKQ* queue)
 	YKEnterMutex();
 
 	//If we have nothing to grab in our queue
-	if(queue->length <= 0)
+	if(queue->length == 0)
 	{
 		YKCurrentTask->ready = FALSE;
 
@@ -82,15 +82,15 @@ void *YKQPend(YKQ* queue)
 					else
 					{
 						tmp_prev = YKCurrentTask->QuePrev; //This is for in between
-						tmp_prev->SemNext = YKCurrentTask;
+						tmp_prev->QueNext = YKCurrentTask;
 					}
 
 					tmp_current = NULL;
 				}
-				else if(tmp_current->SemNext == NULL){
-					tmp_current->SemNext = YKCurrentTask;
-					YKCurrentTask->SemPrev = tmp_current;
-					YKCurrentTask->SemNext = NULL;
+				else if(tmp_current->QueNext == NULL){
+					tmp_current->QueNext = YKCurrentTask;
+					YKCurrentTask->QuePrev = tmp_current;
+					YKCurrentTask->QueNext = NULL;
 				}
 
 				if(tmp_current != NULL)
@@ -107,25 +107,30 @@ void *YKQPend(YKQ* queue)
 			YKCurrentTask->QuePrev = NULL;
 		}
 		
-		YKCurrentTask->ready = TRUE;	
-		YKExitMutex();
 		YKScheduler();
 	}	
 
 	YKExitMutex();
 
-	
+	YKEnterMutex();
 	//If we do have something to grab in our queue
 	
 	tempHead = queue->head;
-	queue->head++;
-	if(queue->head >= queue->endAddress)
+	if(queue->length > 0)
 	{
-		queue->head = queue->baseAddress;
-	}
-	queue->length--;
+			queue->head++;
+			if(queue->head >= queue->endAddress)
+			{
+				queue->head = queue->baseAddress;
+			}
+			queue->length--;
 
-	return *tempHead;
+		return *tempHead;
+	}
+
+	YKExitMutex();
+
+	
 }
 
 /*
@@ -135,12 +140,13 @@ int YKQPost(YKQ* queue, void* message)
 {
 
 	TCBptr tmp_current = queue->pendListStart;
-	YKEnterMutex();
 
-	
+	 
 
 	if(queue->length < queue->size)
 	{
+		YKEnterMutex();
+		
 		//Always post to the queue if it is not full
 		*queue->tail = message;
 		queue->tail++;

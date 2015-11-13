@@ -41,7 +41,7 @@ typedef struct queue
 	void** endAddress;
 	unsigned int size;
 
-	unsigned int length;
+	signed int length;
 	void** head;
 	void** tail;  
 
