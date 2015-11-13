@@ -5,7 +5,7 @@ lab6.bin:	lab6final.s
 		nasm lab6final.s -o lab6.bin -l lab6.lst
 
 lab6final.s:	clib.s myisr.s myinth.s yaks.s lab6app.s yakc.s lab6inth.s
-		cat lab6inth.s clib.s myisr.s myinth.s yaks.s lab6app.s yakc.s > lab6final.s
+		cat  clib.s myisr.s myinth.s yaks.s lab6app.s yakc.s lab6inth.s > lab6final.s
 
 lab6app.s:	lab6app.c
 		cpp lab6app.c lab6app.i

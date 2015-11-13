@@ -53,24 +53,79 @@ YKQ *YKQCreate(void** start, unsigned int size)
 void *YKQPend(YKQ* queue)
 {
 	void** tempHead;
+	TCBptr tmp_current;
+	TCBptr tmp_next;
+	TCBptr tmp_prev;
 
+	YKEnterMutex();
+
+	//If we have nothing to grab in our queue
 	if(queue->length <= 0)
 	{
 		YKCurrentTask->ready = FALSE;
+
+		tmp_current = queue->pendListStart;
+		if(tmp_current != NULL)
+		{
+			//Go through the loop until we reach the end
+			do 
+			{
+				if(YKCurrentTask->priority < tmp_current->priority)
+				{
+					YKCurrentTask->QueNext = tmp_current;
+					YKCurrentTask->QuePrev = tmp_current->QuePrev;
+					tmp_current->QuePrev = YKCurrentTask;
+					if(YKCurrentTask->QuePrev == NULL)
+					{
+						queue->pendListStart = YKCurrentTask;
+					}
+					else
+					{
+						tmp_prev = YKCurrentTask->QuePrev; //This is for in between
+						tmp_prev->SemNext = YKCurrentTask;
+					}
+
+					tmp_current = NULL;
+				}
+				else if(tmp_current->SemNext == NULL){
+					tmp_current->SemNext = YKCurrentTask;
+					YKCurrentTask->SemPrev = tmp_current;
+					YKCurrentTask->SemNext = NULL;
+				}
+
+				if(tmp_current != NULL)
+				{
+					tmp_next = tmp_current->QueNext;
+					tmp_current = tmp_next;
+				}
+	
+			} while(tmp_current != NULL);
+		}
+		else
+		{
+			queue->pendListStart = YKCurrentTask;
+			YKCurrentTask->QuePrev = NULL;
+		}
+		
+		YKCurrentTask->ready = TRUE;	
+		YKExitMutex();
 		YKScheduler();
 	}	
-	else
-	{
-		tempHead = queue->head;
-		queue->head++;
-		if(queue->head >= queue->endAddress)
-		{
-			queue->head = queue->baseAddress;
-		}
-		queue->length--;
-	}	
 
-	retun *tempHead;
+	YKExitMutex();
+
+	
+	//If we do have something to grab in our queue
+	
+	tempHead = queue->head;
+	queue->head++;
+	if(queue->head >= queue->endAddress)
+	{
+		queue->head = queue->baseAddress;
+	}
+	queue->length--;
+
+	return *tempHead;
 }
 
 /*
@@ -78,15 +133,43 @@ void *YKQPend(YKQ* queue)
  */
 int YKQPost(YKQ* queue, void* message)
 {
+
+	TCBptr tmp_current = queue->pendListStart;
+	YKEnterMutex();
+
+	
+
 	if(queue->length < queue->size)
 	{
+		//Always post to the queue if it is not full
 		*queue->tail = message;
 		queue->tail++;
 		queue->length++;
 		if(queue->tail >= queue->endAddress)
 		{
-			queue->tail = queue->start;
+			queue->tail = queue->baseAddress;
 		}
+
+		//Only make a task ready if there is one waiting
+		if(tmp_current != NULL)
+		{
+			//Set the first task pending back to enabled
+			tmp_current->ready = TRUE;				//Allow the current block to run
+			queue->pendListStart = tmp_current->QueNext;		//make list start at the next item now
+			queue->pendListStart->QuePrev = NULL;		//make list start at the next item now
+			tmp_current->QueNext = NULL;				//take off the front
+			tmp_current->QuePrev = NULL;				//	"   "
+	
+		}
+
+		if(YKInterruptDepth == 0)
+		{
+			YKExitMutex();
+			YKScheduler();	
+		}
+
+		YKExitMutex();
+
 		return 1;
 	}
 	else
@@ -279,10 +362,6 @@ void YKSemPost(YKSEM* sem)
 {
 	TCBptr tmp_current = sem->pendListStart;
 	YKEnterMutex();
-	//printInt(sem);
-	//printNewLine();
-	 //printString("POST\r\n");
-	//printNewLine();
 	
 	if(tmp_current != NULL && sem->value == 0)
 	{

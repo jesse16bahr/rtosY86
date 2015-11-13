@@ -5,7 +5,7 @@
 
 extern int KeyBuffer;
 extern YKSEM *NSemPtr;
-int YKTickNumber = 0;
+int YKTickNum = 0;
 
 void resetHandler(){
 	myreset();
@@ -14,7 +14,7 @@ void resetHandler(){
 void YKTickHandler(){
 	// This pointer will update as we move through the task list.
 	TCBptr check_Ptr = YKRdyList;
-	YKTickNumber++;
+	YKTickNum++;
 	// Follow the linked list, if tasks delay is greater than 0 decrement the delay
 	// Tasks should be stored in order of priority.
 	while(check_Ptr != NULL)
@@ -39,13 +39,8 @@ void keyboardHandler(){
 			i++;
 		}
 	}
-	if(KeyBuffer == 'p'){
-		YKSemPost(NSemPtr);
-	}
-	else
-	{
-		mykeybrd();
-	}
+	
+	mykeybrd();
 
 }
 

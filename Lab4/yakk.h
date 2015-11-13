@@ -45,6 +45,8 @@ typedef struct queue
 	void** head;
 	void** tail;  
 
+	TCBptr pendListStart;
+
 } YKQ;
 
 
@@ -54,6 +56,7 @@ extern unsigned short YKIdleCount;
 extern TCBptr YKCurrentTask;
 extern TCBptr YKRdyList;
 extern TCBptr YKNextTask;
+extern YKTickNum;
 
 typedef struct semaphore *YKSEMptr; 
 typedef struct semaphore
@@ -72,7 +75,7 @@ YKQ *YKQCreate(void** start, unsigned int size);
 /*
  *
  */
-void YKQPend(YKQ* queue);
+void *YKQPend(YKQ* queue);
 
 /*
  *
