@@ -24,5 +24,5 @@ lab6inth.s:     lab6inth.c
 		c86 -g lab6inth.i lab6inth.s
 
 clean:
-		rm lab6.bin lab6.lst lab6final.s myinth.s myinth.i yakc.s yakc.i lab6app.s lab6app.i yakc.c~ yakk.h~ yaks.s~ yaku.h~
+		rm lab6inth.i lab6inth.s lab6.bin lab6.lst lab6final.s myinth.s myinth.i yakc.s yakc.i lab6app.s lab6app.i yakc.c~ yakk.h~ yaks.s~ yaku.h~
 

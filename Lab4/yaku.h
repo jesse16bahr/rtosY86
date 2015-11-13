@@ -9,6 +9,8 @@
 #define MAX_SEM	10
 
 void userTickHandler();
-
+void myreset(void);
+void mytick(void);
+void mykeybrd(void);
 
 #endif
