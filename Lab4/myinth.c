@@ -14,14 +14,15 @@ void resetHandler(){
 void YKTickHandler(){
 	mytick();
 	// This pointer will update as we move through the task list.
-/*
+
 	TCBptr check_Ptr = YKRdyList;
 	YKTickNumber++;
+/*
     printNewLine();
     printString("TICK  ");
 	printInt(YKTickNumber);
     printNewLine();
-	
+*/
 
 	// Follow the linked list, if tasks delay is greater than 0 decrement the delay
 	// Tasks should be stored in order of priority.
@@ -34,7 +35,6 @@ void YKTickHandler(){
 		
 		check_Ptr = check_Ptr->next;
 	}
-*/
 }
 
 
