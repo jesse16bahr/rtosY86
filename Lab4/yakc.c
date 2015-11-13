@@ -15,7 +15,6 @@ unsigned short YKSemListSize;
 unsigned short YKCtxSwCount;
 char YKTasksRunning;
 char YKInterruptDepth;
-char globalFlag;
 unsigned short YKIdleCount;
 				  /* (extra one is for the idle task) */
 TCB YK_TCB_Array[MAX_TASKS+1];	/* array to allocate all needed TCBs int YKIdleStk[YKIDLE_STACKSIZE]; //Allocate space for YK idle task*/
