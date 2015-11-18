@@ -1,4 +1,4 @@
-* 
+/*
 File: lab7app.c
 Revision date: 10 November 2005
 Description: Application code for EE 425 lab 7 (Event flags)

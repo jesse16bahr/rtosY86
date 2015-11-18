@@ -7,6 +7,11 @@
 #define FALSE 0
 #define TRUE !FALSE
 
+typdef struct yakevent *YKEventPtr;
+typedef struct yakevent
+{
+	unsigned short flags;
+} YKEVENT;
 
 typedef struct taskblock *TCBptr;
 typedef struct taskblock
