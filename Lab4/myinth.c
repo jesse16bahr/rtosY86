@@ -1,4 +1,3 @@
-
 #include "clib.h"
 #include "yakk.h"
 #include "yaku.h"
@@ -43,4 +42,3 @@ void keyboardHandler(){
 	mykeybrd();
 
 }
-

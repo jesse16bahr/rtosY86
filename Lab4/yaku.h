@@ -1,5 +1,3 @@
-
-
 #ifndef YAKU_H
 #define YAKU_H
 

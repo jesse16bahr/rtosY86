@@ -1,4 +1,3 @@
-
 #ifndef YAKK_H
 #define YAKK_H
 
@@ -104,7 +103,6 @@ void YKExitMutex();
  * Found in yaks.s
  */
 void YKIdleTask();
-
 
 /*
  *

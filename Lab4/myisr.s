@@ -1,5 +1,3 @@
-
-
 Reset:
 	sti			;turn on interrupts
 	call resetHandler	;call interrupt handler
