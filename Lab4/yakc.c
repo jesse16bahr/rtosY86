@@ -30,6 +30,44 @@ int YKIdleStk[YKIDLE_STACKSIZE]; //Do I need a +1 here
 /*
  *
  */
+YKQ *YKEventCreate( unsigned int size)
+{
+	
+}
+
+/*
+ *
+ */
+void *YKEventPend(YKEvent* event, unsigned short value)
+{
+	
+
+	
+}
+
+/*
+ *
+ */
+int YKEventSet()
+{
+
+	
+}
+
+/*
+ *
+ */
+int YKEventReset()
+{
+
+	
+}
+
+
+
+/*
+ *
+ */
 YKQ *YKQCreate(void** start, unsigned int size)
 {
 	YKQ *newQueue = (YKQ *) &YKQ_Array[YKNumberOfQueues];
