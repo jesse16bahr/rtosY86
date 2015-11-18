@@ -20,6 +20,8 @@ unsigned short YKIdleCount;
 TCB YK_TCB_Array[MAX_TASKS+1];	/* array to allocate all needed TCBs int YKIdleStk[YKIDLE_STACKSIZE]; //Allocate space for YK idle task*/
 
 YKQ YKQ_Array[MAX_QUEUES];
+YKEVENT YKEVENT_Array[MAX_EVENTS];
+unsigned int YKNumberOfEvents;
 
 YKSEM YKSEM_Array[MAX_SEM]; /* array to allocate space for semaphores */
 unsigned int YKNumberOfQueues;
@@ -30,9 +32,14 @@ int YKIdleStk[YKIDLE_STACKSIZE]; //Do I need a +1 here
 /*
  *
  */
-YKQ *YKEventCreate( unsigned int size)
+YKEVENT *YKEventCreate(unsigned short initialValue)
 {
-	
+	YKEVENT *newEvent = (YKEVENT *) &YKEVENT_Array[YKNumberOfEvents];
+    YKNumberOfEvents++;
+
+	newEvent->flags = initialValue;
+
+	return newEvent;
 }
 
 /*
@@ -235,6 +242,7 @@ void YKInitialize()
 	//Initial tasklist size is 0
 	YKTaskListSize = 0;
 	YKNumberOfQueues = 0;
+	YKNumberOfEvents = 0;
 	YKTasksRunning = FALSE;
 
 	//Create new task for Idle Task

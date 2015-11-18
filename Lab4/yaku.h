@@ -6,6 +6,7 @@
 #define YKIDLE_PRIORITY 100
 #define MAX_SEM	10
 #define MAX_QUEUES 10
+#define MAX_EVENTS 10
 
 void userTickHandler();
 void myreset(void);
