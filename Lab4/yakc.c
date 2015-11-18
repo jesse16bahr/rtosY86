@@ -38,6 +38,7 @@ YKEVENT *YKEventCreate(unsigned short initialValue)
     YKNumberOfEvents++;
 
 	newEvent->flags = initialValue;
+	newEvent->pendListStart = NULL;
 
 	return newEvent;
 }
@@ -45,10 +46,17 @@ YKEVENT *YKEventCreate(unsigned short initialValue)
 /*
  *
  */
-void *YKEventPend(YKEvent* event, unsigned short value)
+unsigned short *YKEventPend(YKEVENT *event, unsigned eventMask, int waitMode)
 {
 	
+	if(waitMode == EVENT_WAIT_ANY)
+	{
 
+	}
+	else if(waitMode == EVENT_WAIT_ALL)
+	{
+
+	}
 	
 }
 

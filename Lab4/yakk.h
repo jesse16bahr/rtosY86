@@ -6,11 +6,14 @@
 #define NULL 0
 #define FALSE 0
 #define TRUE !FALSE
+#define EVENT_WAIT_ANY 0x0000
+#define EVENT_WAIT_ALL 0x000F
 
 typdef struct yakevent *YKEventPtr;
 typedef struct yakevent
 {
 	unsigned short flags;
+	TCBptr pendListStart;
 } YKEVENT;
 
 typedef struct taskblock *TCBptr;
@@ -36,6 +39,12 @@ typedef struct taskblock
 
 	TCBptr QuePrev;
 	TCBptr QueNext;
+
+	TCBptr EventPrev;
+	TCBptr EventNext;
+
+	unsigned short waitValue;
+	unsigned short waitCondition;
 
 } TCB;
 
@@ -70,6 +79,28 @@ typedef struct semaphore
 } YKSEM;
 
 extern YKSEM YKSEM_Array[MAX_SEM];
+
+
+/*
+ *
+ */
+YKEVENT *YKEventCreate(unsigned short initialValue);
+
+/*
+ *
+ */
+unsigned short *YKEventPend(YKEVENT *event, unsigned eventMask, int waitMode);
+
+/*
+ *
+ */
+int YKEventSet();
+
+/*
+ *
+ */
+int YKEventReset();
+
 
 /*
  *
