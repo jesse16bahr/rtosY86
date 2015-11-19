@@ -9,12 +9,6 @@
 #define EVENT_WAIT_ANY 0x0000
 #define EVENT_WAIT_ALL 0x000F
 
-typdef struct yakevent *YKEventPtr;
-typedef struct yakevent
-{
-	unsigned short flags;
-	TCBptr pendListStart;
-} YKEVENT;
 
 typedef struct taskblock *TCBptr;
 typedef struct taskblock
@@ -47,6 +41,13 @@ typedef struct taskblock
 	unsigned short waitCondition;
 
 } TCB;
+
+typedef struct yakevent *YKEventPtr;
+typedef struct yakevent
+{
+	unsigned short flags;
+	TCBptr pendListStart;
+} YKEVENT;
 
 typedef struct queue
 {
@@ -89,17 +90,17 @@ YKEVENT *YKEventCreate(unsigned short initialValue);
 /*
  *
  */
-unsigned short *YKEventPend(YKEVENT *event, unsigned eventMask, int waitMode);
+unsigned short YKEventPend(YKEVENT *event, unsigned eventMask, int waitMode);
 
 /*
  *
  */
-int YKEventSet();
+void YKEventSet(YKEVENT *event, unsigned eventMask);
 
 /*
  *
  */
-int YKEventReset();
+void YKEventReset(YKEVENT *event, unsigned eventMask);
 
 
 /*

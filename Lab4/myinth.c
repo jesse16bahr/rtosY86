@@ -8,7 +8,7 @@ extern YKSEM *NSemPtr;
 int YKTickNum = 0;
 
 void resetHandler(){
-	myreset();
+	exit(0);
 }
 
 void YKTickHandler(){
@@ -30,7 +30,7 @@ void YKTickHandler(){
 
 
 
-void KeyboardHandler(void)
+void keyboardHandler(void)
 {
     char c;
     c = KeyBuffer;
