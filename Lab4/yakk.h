@@ -1,4 +1,3 @@
-
 #ifndef YAKK_H
 #define YAKK_H
 
@@ -7,6 +6,8 @@
 #define NULL 0
 #define FALSE 0
 #define TRUE !FALSE
+#define EVENT_WAIT_ANY 0x0000
+#define EVENT_WAIT_ALL 0x000F
 
 
 typedef struct taskblock *TCBptr;
@@ -20,14 +21,48 @@ typedef struct taskblock
 	unsigned short priority;	 //Lower numbers have higher priority
 	unsigned short delay;        //Help us know if task is delayed
 
-	unsigned short blocked;   //To help us know if the task is is blocked
+	unsigned short sem_block;   //To help us know if the task is is blocked by a semaphore
 	unsigned short ready;      //To help us know if task is ready to run
 	unsigned short hasRun;
 
 	TCBptr prev;
 	TCBptr next;
 
+	TCBptr SemPrev;
+	TCBptr SemNext;
+
+	TCBptr QuePrev;
+	TCBptr QueNext;
+
+	TCBptr EventPrev;
+	TCBptr EventNext;
+
+	unsigned short waitValue;
+	unsigned short waitCondition;
+
 } TCB;
+
+typedef struct yakevent *YKEventPtr;
+typedef struct yakevent
+{
+	unsigned short flags;
+	TCBptr pendListStart;
+} YKEVENT;
+
+typedef struct queue
+{
+	void** baseAddress;
+	void** endAddress;
+	unsigned int size;
+
+	signed int length;
+	void** head;
+	void** tail;  
+
+	TCBptr pendListStart;
+
+} YKQ;
+
 
 extern TCB  YK_TCB_Array[MAX_TASKS+1];	/* array to allocate all needed TCBs*/
 extern unsigned short YKCtxSwCount;
@@ -35,6 +70,53 @@ extern unsigned short YKIdleCount;
 extern TCBptr YKCurrentTask;
 extern TCBptr YKRdyList;
 extern TCBptr YKNextTask;
+extern YKTickNum;
+
+typedef struct semaphore *YKSEMptr; 
+typedef struct semaphore
+{
+	signed short value;
+	TCBptr pendListStart;
+} YKSEM;
+
+extern YKSEM YKSEM_Array[MAX_SEM];
+
+
+/*
+ *
+ */
+YKEVENT *YKEventCreate(unsigned short initialValue);
+
+/*
+ *
+ */
+unsigned short YKEventPend(YKEVENT *event, unsigned eventMask, int waitMode);
+
+/*
+ *
+ */
+void YKEventSet(YKEVENT *event, unsigned eventMask);
+
+/*
+ *
+ */
+void YKEventReset(YKEVENT *event, unsigned eventMask);
+
+
+/*
+ *
+ */
+YKQ *YKQCreate(void** start, unsigned int size);
+
+/*
+ *
+ */
+void *YKQPend(YKQ* queue);
+
+/*
+ *
+ */
+int YKQPost(YKQ* queue, void* message);
 
 /*
  *
@@ -59,7 +141,6 @@ void YKExitMutex();
  */
 void YKIdleTask();
 
-
 /*
  *
  */
@@ -69,6 +150,21 @@ void YKDelayTask(unsigned int count);
  *
  */
 void YKNewTask();
+
+/*
+ *
+ */
+YKSEM* YKSemCreate(signed short initSemVal);
+
+/*
+ *
+ */
+void YKSemPost(YKSEM* sem);
+
+/*
+ *
+ */
+void YKSemPend(YKSEM* sem);
 
 /*
  *

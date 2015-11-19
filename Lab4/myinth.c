@@ -1,10 +1,11 @@
-
 #include "clib.h"
 #include "yakk.h"
 #include "yaku.h"
+#include "lab7defs.h"
 
 extern int KeyBuffer;
-int YKTickNumber = 0;
+extern YKSEM *NSemPtr;
+int YKTickNum = 0;
 
 void resetHandler(){
 	exit(0);
@@ -13,13 +14,7 @@ void resetHandler(){
 void YKTickHandler(){
 	// This pointer will update as we move through the task list.
 	TCBptr check_Ptr = YKRdyList;
-	YKTickNumber++;
-    printNewLine();
-    printString("TICK  ");
-	printInt(YKTickNumber);
-    printNewLine();
-	
-
+	YKTickNum++;
 	// Follow the linked list, if tasks delay is greater than 0 decrement the delay
 	// Tasks should be stored in order of priority.
 	while(check_Ptr != NULL)
@@ -35,26 +30,21 @@ void YKTickHandler(){
 
 
 
-void keyboardHandler(){
-	int i;
+void keyboardHandler(void)
+{
+    char c;
+    c = KeyBuffer;
 
-	if(KeyBuffer == 'd'){
-		printNewLine();
-		printString("DELAY KEY PRESSED");       // Print string
-		i = 0;
-		while(i < 6000){
-			i++;
-		}
-		printString("DELAY COMPLETE");       // Print string
-		printNewLine();
-	}
-	else
-	{
-		printNewLine();
-		printString("KEYPRESS ");       // Print string
-		printChar(KeyBuffer);
-		printString(" IGNORED");       // Print string
-		printNewLine();
-	}
-
+    if(c == 'a') YKEventSet(charEvent, EVENT_A_KEY);
+    else if(c == 'b') YKEventSet(charEvent, EVENT_B_KEY);
+    else if(c == 'c') YKEventSet(charEvent, EVENT_C_KEY);
+    else if(c == 'd') YKEventSet(charEvent, EVENT_A_KEY | EVENT_B_KEY | EVENT_C_KEY);
+    else if(c == '1') YKEventSet(numEvent, EVENT_1_KEY);
+    else if(c == '2') YKEventSet(numEvent, EVENT_2_KEY);
+    else if(c == '3') YKEventSet(numEvent, EVENT_3_KEY);
+    else {
+        print("\nKEYPRESS (", 11);
+        printChar(c);
+        print(") IGNORED\n", 10);
+    }
 }

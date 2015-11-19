@@ -1,15 +1,15 @@
 #####################################################################
 # ECEn 425 Lab 4a Makefile
 
-lab4d.bin:	lab4dfinal.s
-		nasm lab4dfinal.s -o lab4d.bin -l lab4d.lst
+lab7.bin:	lab7final.s
+		nasm lab7final.s -o lab7.bin -l lab7.lst
 
-lab4dfinal.s:	clib.s myisr.s myinth.s yaks.s lab4d_app.s yakc.s
-		cat clib.s myisr.s myinth.s yaks.s lab4d_app.s yakc.s > lab4dfinal.s
+lab7final.s:	clib.s myisr.s myinth.s yaks.s lab7app.s yakc.s
+		cat  clib.s myisr.s myinth.s yaks.s lab7app.s yakc.s > lab7final.s
 
-lab4d_app.s:	lab4d_app.c
-		cpp lab4d_app.c lab4d_app.i
-		c86 -g lab4d_app.i lab4d_app.s
+lab7app.s:	lab7app.c
+		cpp lab7app.c lab7app.i
+		c86 -g lab7app.i lab7app.s
 
 myinth.s:	myinth.c
 		cpp myinth.c myinth.i
@@ -20,5 +20,5 @@ yakc.s:		yakc.c
 		c86 -g yakc.i yakc.s
 
 clean:
-		rm lab4d.bin lab4d.lst lab4dfinal.s myinth.s myinth.i yakc.s yakc.i lab4d_app.s lab4d_app.i yakc.c~ yakk.h~ yaks.s~ yaku.h~
+		rm lab7inth.i lab7inth.s lab7.bin lab7.lst lab7final.s myinth.s myinth.i yakc.s yakc.i lab7app.s lab7app.i yakc.c~ yakk.h~ yaks.s~ yaku.h~
 
