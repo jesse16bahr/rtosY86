@@ -63,14 +63,67 @@ unsigned short *YKEventPend(YKEVENT *event, unsigned eventMask, int waitMode)
 /*
  *
  */
-int YKEventSet()
+void YKEventSet(YKEVENT *event, unsigned eventMask)
 {
-
+	short unleashedtasks = 0;
+	TCBptr tmp_current = event->pendListStart;
+	YKEnterMutex();	
+	event->flags = event->flags | eventMask;
+	while(tmp_current != NULL)
+	{
+		// check stuff
+		if(tmp_current->waitCondition == EVENT_WAIT_ANY)
+		{
+			if(tmp_current->waitValue & event->flags)
+			{
+				// wait any conditions met
+				tmp_current->ready = TRUE;
+				// remove from list.
+				TCBptr temp_ptr = tmp_current; // holds the pointer we are on currently
+				tmp_current = temp_ptr->EventNext; // moves to next pointer
+				tmp_current->EventPrev = temp_ptr->EventPrev; // update next pointer
+				tmp_current->EventNext = temp_ptr->EventNext; // update next pointer
+				tmp_ptr = NULL;
+				unleashedtasks+=1;
+				continue; // continue with next iteration of the loop
+			}
+		}
+		if(tmp_current->waitCondition == EVENT_WAIT_ALL)
+		{
+			if(tmp_current->waitValue == event->flags)
+			{
+				// wait all conditions met
+				tmp_current->ready = TRUE;
+				// remove from list.
+				TCBptr temp_ptr = tmp_current; // holds the pointer we are on currently
+				tmp_current = temp_ptr->EventNext; // moves to next pointer
+				tmp_current->EventPrev = temp_ptr->EventPrev; // update next pointer
+				tmp_current->EventNext = temp_ptr->EventNext; // update next pointer
+				tmp_ptr = NULL;
+				unleashedtasks+=1;
+				continue; // continue with next iteration of the loop
+			}
+		}
+		// move along the list of pending things
+		tmp_current = tmp_current->EventNext; // moves to next pointer	
+	}
+	// All tasks that should have been made ready are now ready.
+	if(YKInterruptDepth == 0 && unleashedtasks > 0)
+	{
+		YKExitMutex();
+		YKScheduler();	
+	}
+	else
+	{
+		YKExitMutex();
+	}
+	
 	
 }
 
 /*
- *
+*
+}
  */
 int YKEventReset()
 {
