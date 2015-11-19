@@ -34,12 +34,14 @@ int YKIdleStk[YKIDLE_STACKSIZE]; //Do I need a +1 here
  */
 YKEVENT *YKEventCreate(unsigned short initialValue)
 {
-	YKEVENT *newEvent = (YKEVENT *) &YKEVENT_Array[YKNumberOfEvents];
-    YKNumberOfEvents++;
 
+	YKEVENT *newEvent = (YKEVENT *) &YKEVENT_Array[YKNumberOfEvents];
+	
+	printString("CREATE EVENT");	
+
+	YKNumberOfEvents++;
 	newEvent->flags = initialValue;
 	newEvent->pendListStart = NULL;
-
 	return newEvent;
 }
 
@@ -53,7 +55,7 @@ unsigned short YKEventPend(YKEVENT *event, unsigned eventMask, int waitMode)
 	TCBptr tmp_prev;
 
 	unsigned char pend = TRUE;	
-
+printString("PEND EVENT");
 	if(waitMode == EVENT_WAIT_ANY)
 	{
 		if(event->flags & eventMask != 0)
@@ -132,14 +134,19 @@ unsigned short YKEventPend(YKEVENT *event, unsigned eventMask, int waitMode)
  */
 void YKEventSet(YKEVENT *event, unsigned eventMask)
 {
+
 	short unleashedtasks = 0;
 	TCBptr tmp_current = event->pendListStart;
 	TCBptr temp_ptr;
-
-	YKEnterMutex();	
+printString("SET EVENT");
+	YKEnterMutex();
+printString("----- A");	
 	event->flags = event->flags | eventMask;
+printString("----- B");	
 	while(tmp_current != NULL)
 	{
+printString("WHILE LOOP");
+printInt(&tmp_current);
 		// check stuff
 		if(tmp_current->waitCondition == EVENT_WAIT_ANY)
 		{
@@ -154,9 +161,12 @@ void YKEventSet(YKEVENT *event, unsigned eventMask)
 				tmp_current->EventNext = temp_ptr->EventNext; // update next pointer
 				temp_ptr = NULL;
 				unleashedtasks+=1;
-				continue; // continue with next iteration of the loop
+			}else
+			{
+			// move along the list of pending things
+			tmp_current = tmp_current->EventNext; // moves to next pointer	
 			}
-		}
+		}else
 		if(tmp_current->waitCondition == EVENT_WAIT_ALL)
 		{
 			if(tmp_current->waitValue&event->flags == tmp_current->waitValue)
@@ -170,11 +180,16 @@ void YKEventSet(YKEVENT *event, unsigned eventMask)
 				tmp_current->EventNext = temp_ptr->EventNext; // update next pointer
 				temp_ptr = NULL;
 				unleashedtasks+=1;
-				continue; // continue with next iteration of the loop
+			}else
+			{
+			// move along the list of pending things
+			tmp_current = tmp_current->EventNext; // moves to next pointer	
 			}
-		}
+		}else
+		{
 		// move along the list of pending things
 		tmp_current = tmp_current->EventNext; // moves to next pointer	
+		}
 	}
 	// All tasks that should have been made ready are now ready.
 	if(YKInterruptDepth == 0 && unleashedtasks > 0)
@@ -195,6 +210,7 @@ void YKEventSet(YKEVENT *event, unsigned eventMask)
  */
 void YKEventReset(YKEVENT *event, unsigned eventMask)
 {
+printString("RESET EVENT");
 	//clear the gits that are set in the mask
 	event->flags &= ~eventMask;
 }
