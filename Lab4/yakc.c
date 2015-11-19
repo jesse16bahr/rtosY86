@@ -36,9 +36,6 @@ YKEVENT *YKEventCreate(unsigned short initialValue)
 {
 
 	YKEVENT *newEvent = (YKEVENT *) &YKEVENT_Array[YKNumberOfEvents];
-	
-	printString("CREATE EVENT");	
-
 	YKNumberOfEvents++;
 	newEvent->flags = initialValue;
 	newEvent->pendListStart = NULL;
@@ -55,7 +52,6 @@ unsigned short YKEventPend(YKEVENT *event, unsigned eventMask, int waitMode)
 	TCBptr tmp_prev;
 
 	unsigned char pend = TRUE;	
-printString("PEND EVENT");
 	if(waitMode == EVENT_WAIT_ANY)
 	{
 		if(event->flags & eventMask != 0)
@@ -78,8 +74,8 @@ printString("PEND EVENT");
 		YKCurrentTask->ready = FALSE;
 		YKCurrentTask->waitCondition = waitMode;
 		YKCurrentTask->waitValue = eventMask;
-
 		tmp_current = event->pendListStart;
+
 		if(tmp_current != NULL)
 		{
 			//Go through the loop until we reach the end
@@ -99,7 +95,6 @@ printString("PEND EVENT");
 						tmp_prev = YKCurrentTask->EventPrev; //This is for in between
 						tmp_prev->EventNext = YKCurrentTask;
 					}
-
 					tmp_current = NULL;
 				}
 				else if(tmp_current->EventNext == NULL){
@@ -110,8 +105,14 @@ printString("PEND EVENT");
 
 				if(tmp_current != NULL)
 				{
-					tmp_next = tmp_current->EventNext;
-					tmp_current = tmp_next;
+					if(tmp_next != tmp_current->EventNext)
+					{
+						tmp_next = tmp_current->EventNext;
+						tmp_current = tmp_next;
+					}else
+					{
+						tmp_current = NULL;
+					}
 				}
 	
 			} while(tmp_current != NULL);
@@ -138,15 +139,10 @@ void YKEventSet(YKEVENT *event, unsigned eventMask)
 	short unleashedtasks = 0;
 	TCBptr tmp_current = event->pendListStart;
 	TCBptr temp_ptr;
-printString("SET EVENT");
 	YKEnterMutex();
-printString("----- A");	
 	event->flags = event->flags | eventMask;
-printString("----- B");	
 	while(tmp_current != NULL)
 	{
-printString("WHILE LOOP");
-printInt(&tmp_current);
 		// check stuff
 		if(tmp_current->waitCondition == EVENT_WAIT_ANY)
 		{
@@ -156,7 +152,7 @@ printInt(&tmp_current);
 				tmp_current->ready = TRUE;
 				// remove from list.
 				temp_ptr = tmp_current; // holds the pointer we are on currently
-				tmp_current = temp_ptr->EventNext; // moves to next pointer
+				tmp_current = tmp_current->EventNext; // moves to next pointer
 				tmp_current->EventPrev = temp_ptr->EventPrev; // update next pointer
 				tmp_current->EventNext = temp_ptr->EventNext; // update next pointer
 				temp_ptr = NULL;
@@ -164,7 +160,7 @@ printInt(&tmp_current);
 			}else
 			{
 			// move along the list of pending things
-			tmp_current = tmp_current->EventNext; // moves to next pointer	
+			tmp_current = tmp_current->EventNext; // moves to next pointer
 			}
 		}else
 		if(tmp_current->waitCondition == EVENT_WAIT_ALL)
@@ -174,16 +170,28 @@ printInt(&tmp_current);
 				// wait all conditions met
 				tmp_current->ready = TRUE;
 				// remove from list.
+				if(tmp_current == tmp_current->EventNext)
+				{
+					tmp_current = NULL;
+				}else
+				{
 				temp_ptr = tmp_current; // holds the pointer we are on currently
-				tmp_current = temp_ptr->EventNext; // moves to next pointer
+				tmp_current = tmp_current->EventNext; // moves to next pointer
 				tmp_current->EventPrev = temp_ptr->EventPrev; // update next pointer
 				tmp_current->EventNext = temp_ptr->EventNext; // update next pointer
 				temp_ptr = NULL;
+				}
 				unleashedtasks+=1;
 			}else
 			{
-			// move along the list of pending things
-			tmp_current = tmp_current->EventNext; // moves to next pointer	
+				// move along the list of pending things
+				if(tmp_current == tmp_current->EventNext)
+				{
+					tmp_current = NULL;
+				}else
+				{
+					tmp_current = tmp_current->EventNext; // moves to next pointer	
+				}
 			}
 		}else
 		{
@@ -210,7 +218,6 @@ printInt(&tmp_current);
  */
 void YKEventReset(YKEVENT *event, unsigned eventMask)
 {
-printString("RESET EVENT");
 	//clear the gits that are set in the mask
 	event->flags &= ~eventMask;
 }
