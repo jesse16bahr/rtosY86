@@ -105,14 +105,9 @@ unsigned short YKEventPend(YKEVENT *event, unsigned eventMask, int waitMode)
 
 				if(tmp_current != NULL)
 				{
-					if(tmp_next != tmp_current->EventNext)
-					{
 						tmp_next = tmp_current->EventNext;
 						tmp_current = tmp_next;
-					}else
-					{
 						tmp_current = NULL;
-					}
 				}
 	
 			} while(tmp_current != NULL);
@@ -153,9 +148,15 @@ void YKEventSet(YKEVENT *event, unsigned eventMask)
 				// remove from list.
 				temp_ptr = tmp_current; // holds the pointer we are on currently
 				tmp_current = tmp_current->EventNext; // moves to next pointer
-				tmp_current->EventPrev = temp_ptr->EventPrev; // update next pointer
-				tmp_current->EventNext = temp_ptr->EventNext; // update next pointer
-				temp_ptr = NULL;
+				if(tmp_current != NULL)
+				{
+					tmp_current->EventPrev = temp_ptr->EventPrev; // update next pointer
+					if(tmp_current->EventPrev != NULL)
+					{
+						tmp_current->EventPrev->EventNext = tmp_current; // update next pointer
+					}
+					temp_ptr = NULL;
+				}
 				unleashedtasks+=1;
 			}else
 			{
@@ -170,28 +171,21 @@ void YKEventSet(YKEVENT *event, unsigned eventMask)
 				// wait all conditions met
 				tmp_current->ready = TRUE;
 				// remove from list.
-				if(tmp_current == tmp_current->EventNext)
-				{
-					tmp_current = NULL;
-				}else
-				{
 				temp_ptr = tmp_current; // holds the pointer we are on currently
 				tmp_current = tmp_current->EventNext; // moves to next pointer
-				tmp_current->EventPrev = temp_ptr->EventPrev; // update next pointer
-				tmp_current->EventNext = temp_ptr->EventNext; // update next pointer
-				temp_ptr = NULL;
+				if(tmp_current != NULL)
+				{
+					tmp_current->EventPrev = temp_ptr->EventPrev; // update next pointer
+					if(tmp_current->EventPrev != NULL)
+					{
+						tmp_current->EventPrev->EventNext = tmp_current; // update next pointer
+					}					
+					temp_ptr = NULL;
 				}
 				unleashedtasks+=1;
 			}else
 			{
-				// move along the list of pending things
-				if(tmp_current == tmp_current->EventNext)
-				{
-					tmp_current = NULL;
-				}else
-				{
-					tmp_current = tmp_current->EventNext; // moves to next pointer	
-				}
+				tmp_current = tmp_current->EventNext; // moves to next pointer	
 			}
 		}else
 		{
