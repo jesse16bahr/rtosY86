@@ -44,20 +44,87 @@ YKEVENT *YKEventCreate(unsigned short initialValue)
 }
 
 /*
- *
+ * Pend if the event(s) have not happened yet
  */
-unsigned short *YKEventPend(YKEVENT *event, unsigned eventMask, int waitMode)
+unsigned short YKEventPend(YKEVENT *event, unsigned eventMask, int waitMode)
 {
-	
+	TCBptr tmp_current;
+	TCBptr tmp_next;
+	TCBptr tmp_prev;
+
+	unsigned char pend = TRUE;	
+
 	if(waitMode == EVENT_WAIT_ANY)
 	{
-
+		if(event->flags & eventMask != 0)
+		{
+			pend = FALSE;
+		}
 	}
 	else if(waitMode == EVENT_WAIT_ALL)
 	{
-
+		if(event->flags & eventMask == eventMask)
+		{
+			pend = FALSE;
+		}
 	}
+
+	if(pend == TRUE)
+	{
+		
+		YKEnterMutex();			//Start critical section
+		YKCurrentTask->ready = FALSE;
+		YKCurrentTask->waitMode = waitMode;
+		YKCurrentTask->waitValue = eventMask;
+
+		tmp_current = event->pendListStart;
+		if(tmp_current != NULL)
+		{
+			//Go through the loop until we reach the end
+			do 
+			{
+				if(YKCurrentTask->priority < tmp_current->priority)
+				{
+					YKCurrentTask->EventNext = tmp_current;
+					YKCurrentTask->EventPrev = tmp_current->EventPrev;
+					tmp_current->EventPrev = YKCurrentTask;
+					if(YKCurrentTask->EventPrev == NULL)
+					{
+						event->pendListStart = YKCurrentTask;
+					}
+					else
+					{
+						tmp_prev = YKCurrentTask->EventPrev; //This is for in between
+						tmp_prev->EventNext = YKCurrentTask;
+					}
+
+					tmp_current = NULL;
+				}
+				else if(tmp_current->EventNext == NULL){
+					tmp_current->EventNext = YKCurrentTask;
+					YKCurrentTask->EventPrev = tmp_current;
+					YKCurrentTask->EventNext = NULL;
+				}
+
+				if(tmp_current != NULL)
+				{
+					tmp_next = tmp_current->EventNext;
+					tmp_current = tmp_next;
+				}
 	
+			} while(tmp_current != NULL);
+		}
+		else
+		{
+			event->pendListStart = YKCurrentTask;
+			YKCurrentTask->EventPrev = NULL;
+		}
+		YKExitMutex();		//End critical section
+
+		YKScheduler();
+	}	
+
+	return event->flags;	
 }
 
 /*
@@ -70,12 +137,12 @@ int YKEventSet()
 }
 
 /*
- *
+ * Clear the event bits that the eventMask specifies
  */
-int YKEventReset()
+int YKEventReset(YKEVENT *event, unsigned eventMask)
 {
-
-	
+	//clear the gits that are set in the mask
+	event->flags &= ~eventMask;
 }
 
 
